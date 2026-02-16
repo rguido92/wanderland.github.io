@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Wanderlust - Planifica tu próximo viaje de forma sencilla y eficiente. Descubre destinos únicos y crea itinerarios personalizados.">
+    <meta name="keywords" content="viajes, itinerarios, planificación, destinos, turismo">
+    <meta name="author" content="Wanderlust">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://wanderlust.com/">
+    <meta property="og:title" content="Wanderlust - Tu aplicación de viajes">
+    <meta property="og:description" content="Planifica tu próximo viaje de forma sencilla y eficiente">
+    <meta property="og:image" content="./assets/images/og-image.jpg">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://wanderlust.com/">
+    <meta property="twitter:title" content="Wanderlust - Tu aplicación de viajes">
+    <meta property="twitter:description" content="Planifica tu próximo viaje de forma sencilla y eficiente">
+    <meta property="twitter:image" content="./assets/images/og-image.jpg">
+    
+    <title>Wanderlust - Planifica tu Próximo Viaje</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="./assets/images/favicon.ico">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="./css/reset.css">
+    <link rel="stylesheet" href="./css/variables.css">
+    <link rel="stylesheet" href="./css/layout.css">
+    <link rel="stylesheet" href="./css/components.css">
+</head>
+
+<body>
+    <!-- Header / Navigation -->
+    <header class="main-header">
+        <div class="header-content">
+            <div class="logo">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="10" r="3"/>
+                    <path d="M12 21.7C17.3 17 20 13 20 10a8 8 0 1 0-16 0c0 3 2.7 6.9 8 11.7z"/>
+                </svg>
+                <h2>Wanderlust</h2>
+            </div>
+            
+            <nav class="main-nav" aria-label="Navegación principal">
+                <a href="index.html" aria-current="page">Inicio</a>
+                <a href="pages/destinos.html">Destinos</a>
+                <a href="pages/itinerarios.html">Itinerarios</a>
+                <a href="pages/contacto.html">Contacto</a>
+            </nav>
+            
+            <div class="header-actions">
+                <a href="pages/login.html" class="btn-secondary">Iniciar sesión</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <!-- Hero Section -->
+        <section class="hero" aria-labelledby="hero-title">
+            <img 
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuCj1dYSIE8GRYhzVLRCxsXYn4N3SRNWWqVe-ybh_G9WPhllj8nyI72OkVh2dUltMTWri2Df1xRKOEpR5v4006NFGtCPQ0BDMcKk17dm5xcH5b8Vw9WGT9a7U1e2jP3ENwV_NtKb7OpRaD-xdTDqGmFyVEGhJfunHicVfDwIH8pqD7ZEcDRbhGi1-RL7RDrtkL2a8Nu22gUWVos7qflu05d5t1NB0sdnfQbzen378Ozu6JuslhZIIVG3hhRfv3sSB_JEMeik-rZQRc0"
+                alt="Vista panorámica de un destino paradisíaco"
+                class="hero-image"
+                loading="eager"
+            />
+            
+            <div class="hero-content">
+                <h1 id="hero-title">Planifica tu próximo viaje de forma sencilla y eficiente</h1>
+                <p>Descubre destinos únicos y crea itinerarios personalizados con nuestra aplicación de viajes.</p>
+                
+                <!-- Search Form -->
+                <form role="search" class="search-form" aria-label="Buscar destinos">
+                    <div class="search-input-group">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <circle cx="11" cy="11" r="8"/>
+                            <path d="m21 21-4.3-4.3"/>
+                        </svg>
+                        <input 
+                            type="search" 
+                            name="q"
+                            placeholder="Buscar destinos, itinerarios..." 
+                            aria-label="Buscar destinos o itinerarios"
+                            required
+                        />
+                        <button type="submit" class="btn-primary">Buscar</button>
+                    </div>
+                    <div class="search-error" role="alert" aria-live="polite"></div>
+                </form>
+            </div>
+        </section>
+        
+        <!-- Features Section -->
+        <section class="features" aria-labelledby="features-title">
+            <div class="features-container">
+                <header class="section-header">
+                    <h2 id="features-title">¿Por qué elegir Wanderlust?</h2>
+                    <p>Todo lo que necesitas para planificar el viaje perfecto</p>
+                </header>
+                
+                <div class="features-grid">
+                    <article class="feature-card">
+                        <div class="feature-icon" aria-hidden="true">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M6 8a2 2 0 0 1 2 -2h8a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-8a2 2 0 0 1 -2 -2l0 -10" />
+                                <path d="M9 6v-1a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v1" />
+                                <path d="M6 10h12" />
+                                <path d="M6 16h12" />
+                                <path d="M9 20v1" />
+                                <path d="M15 20v1" />
+                            </svg>
+                        </div>
+                        <h3>Explora destinos populares</h3>
+                        <p>Desde playas paradisíacas hasta ciudades vibrantes, encuentra el destino perfecto para tu próxima aventura.</p>
+                    </article>
+                    
+                    <article class="feature-card">
+                        <div class="feature-icon" aria-hidden="true">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 18.5l-3 -1.5l-6 3v-13l6 -3l6 3l6 -3v7.5" />
+                                <path d="M9 4v13" />
+                                <path d="M15 7v5.5" />
+                                <path d="M21.121 20.121a3 3 0 1 0 -4.242 0c.418 .419 1.125 1.045 2.121 1.879c1.051 -.89 1.759 -1.516 2.121 -1.879" />
+                                <path d="M19 18v.01" />
+                            </svg>
+                        </div>
+                        <h3>Crea itinerarios personalizados</h3>
+                        <p>Organiza tus actividades y lugares de interés en un itinerario a medida para aprovechar al máximo tu viaje.</p>
+                    </article>
+                    
+                    <article class="feature-card">
+                        <div class="feature-icon" aria-hidden="true">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 9h.01" />
+                                <path d="M11 12h1v4h1" />
+                                <path d="M12 3c7.2 0 9 1.8 9 9c0 7.2 -1.8 9 -9 9c-7.2 0 -9 -1.8 -9 -9c0 -7.2 1.8 -9 9 -9" />
+                            </svg>
+                        </div>
+                        <h3>Accede a información detallada</h3>
+                        <p>Obtén información sobre atracciones turísticas, restaurantes, alojamientos y más para planificar tu viaje con confianza.</p>
+                    </article>
+                </div>
+            </div>
+        </section>
+    </main>
+    
+  
+    
+    <!-- Scripts -->
+    <script src="./js/main.js" type="module"></script>
+</body>
+  <!-- Footer -->
+    <footer class="main-footer">
+        <div class="footer-content">
+            <div class="footer-info">
+                <div class="logo">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="10" r="3"/>
+                        <path d="M12 21.7C17.3 17 20 13 20 10a8 8 0 1 0-16 0c0 3 2.7 6.9 8 11.7z"/>
+                    </svg>
+                    <span>Wanderlust</span>
+                </div>
+                <p>Tu compañero perfecto para planificar viajes inolvidables</p>
+            </div>
+            
+            <nav class="footer-nav" aria-label="Navegación del pie de página">
+                <div class="footer-column">
+                    <h3>Producto</h3>
+                    <a href="pages/destinos.html">Destinos</a>
+                    <a href="pages/itinerarios.html">Itinerarios</a>
+                    <a href="#">Precios</a>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Compañía</h3>
+                    <a href="#">Sobre nosotros</a>
+                    <a href="pages/contacto.html">Contacto</a>
+                    <a href="#">Blog</a>
+                </div>
+                
+                <div class="footer-column">
+                    <h3>Legal</h3>
+                    <a href="#">Privacidad</a>
+                    <a href="#">Términos</a>
+                    <a href="#">Cookies</a>
+                </div>
+            </nav>
+        </div>
+        
+        <div class="footer-bottom">
+            <small>&copy; 2026 Wanderlust. Todos los derechos reservados.</small>
+        </div>
+    </footer>
+</html>

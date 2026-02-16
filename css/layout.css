@@ -1,0 +1,292 @@
+/* ==========================================================================
+   Layout Styles - Estructura general de la página
+   ========================================================================== */
+
+body {
+  font-family: var(--font-family-base);
+  background-color: var(--background);
+  color: var(--text-primary);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* ==========================================================================
+   Header
+   ========================================================================== */
+
+.main-header {
+  background-color: var(--background);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky);
+  height: var(--header-height);
+}
+
+.header-content {
+  max-width: var(--container-2xl);
+  margin: 0 auto;
+  padding: 0 var(--space-4);
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-8);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--text-primary);
+}
+
+.logo svg {
+  color: var(--primary);
+  flex-shrink: 0;
+}
+
+.logo h2 {
+  font-size: var(--text-xl);
+  font-weight: var(--font-bold);
+}
+
+/* Navigation */
+.main-nav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+}
+
+.main-nav a {
+  color: var(--text-secondary);
+  font-weight: var(--font-medium);
+  font-size: var(--text-base);
+  transition: color var(--transition-base);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+}
+
+.main-nav a:hover,
+.main-nav a:focus {
+  color: var(--primary);
+}
+
+.main-nav a[aria-current="page"] {
+  color: var(--primary);
+  font-weight: var(--font-semibold);
+}
+
+/* Header Actions */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+/* Mobile Menu Toggle (oculto por ahora, agregar con JS después) */
+@media (max-width: 768px) {
+  .main-nav {
+    display: none;
+  }
+}
+
+/* ==========================================================================
+   Hero Section
+   ========================================================================== */
+
+.hero {
+  position: relative;
+  min-height: 500px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: var(--space-20) var(--space-4);
+  overflow: hidden;
+}
+
+.hero-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -1;
+  mask-image: linear-gradient(to bottom, rgba(6, 24, 42, 1) 5%, rgba(6, 24, 42, 0) 80%);
+  -webkit-mask-image: linear-gradient(to bottom, rgba(6, 24, 42, 1) 5%, rgba(6, 24, 42, 0) 80%);
+}
+
+.hero-content {
+  max-width: var(--container-md);
+  z-index: var(--z-base);
+}
+
+.hero h1 {
+  font-size: clamp(var(--text-3xl), 5vw, var(--text-5xl));
+  font-weight: var(--font-bold);
+  margin-bottom: var(--space-6);
+  line-height: 1.2;
+}
+
+.hero p {
+  font-size: var(--text-lg);
+  color: var(--text-secondary);
+  margin-bottom: var(--space-8);
+}
+
+/* ==========================================================================
+   Features Section
+   ========================================================================== */
+
+.features {
+  background-color: var(--background);
+  padding: var(--space-20) var(--space-4);
+}
+
+.features-container {
+  max-width: var(--container-xl);
+  margin: 0 auto;
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: var(--space-12);
+}
+
+.section-header h2 {
+  font-size: var(--text-4xl);
+  font-weight: var(--font-bold);
+  margin-bottom: var(--space-4);
+  color: var(--text-primary);
+}
+
+.section-header p {
+  font-size: var(--text-lg);
+  color: var(--text-muted);
+  max-width: var(--container-md);
+  margin: 0 auto;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--space-6);
+}
+
+/* ==========================================================================
+   Footer
+   ========================================================================== */
+
+.main-footer {
+  background-color: var(--background);
+  border-top: 1px solid var(--border);
+  margin-top: auto;
+  padding: var(--space-16) var(--space-4) var(--space-8);
+}
+
+.footer-content {
+  max-width: var(--container-xl);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: var(--space-12);
+  margin-bottom: var(--space-12);
+}
+
+.footer-info .logo {
+  margin-bottom: var(--space-4);
+}
+
+.footer-info p {
+  color: var(--text-muted);
+  max-width: 300px;
+}
+
+.footer-column h3 {
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: var(--space-4);
+  color: var(--text-primary);
+}
+
+.footer-column a {
+  display: block;
+  color: var(--text-secondary);
+  padding: var(--space-2) 0;
+  transition: color var(--transition-base);
+  font-size: var(--text-sm);
+}
+
+.footer-column a:hover,
+.footer-column a:focus {
+  color: var(--primary);
+}
+
+.footer-bottom {
+  max-width: var(--container-xl);
+  margin: 0 auto;
+  padding-top: var(--space-8);
+  border-top: 1px solid var(--border-light);
+  text-align: center;
+}
+
+.footer-bottom small {
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+}
+
+/* ==========================================================================
+   Responsive Design
+   ========================================================================== */
+
+/* Tablet */
+@media (max-width: 1024px) {
+  .footer-content {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-8);
+  }
+  
+  .footer-info {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+  .hero {
+    min-height: 400px;
+    padding: var(--space-12) var(--space-4);
+  }
+  
+  .hero h1 {
+    font-size: var(--text-2xl);
+  }
+  
+  .hero p {
+    font-size: var(--text-base);
+  }
+  
+  .features {
+    padding: var(--space-12) var(--space-4);
+  }
+  
+  .features-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+  }
+  
+  .footer-content {
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+  }
+  
+  .main-footer {
+    padding: var(--space-12) var(--space-4) var(--space-6);
+  }
+}
