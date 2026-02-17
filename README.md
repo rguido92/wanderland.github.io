@@ -263,11 +263,6 @@ Este es un proyecto personal de aprendizaje, pero si tienes sugerencias:
 
 Este proyecto está bajo licencia MIT - ver archivo LICENSE para detalles.
 
-## 📞 Contacto
-
-**Proyecto:** Wanderlust  
-**Autor:** [Tu Nombre]  
-**Email:** [tu-email@ejemplo.com]
 
 ## 🙏 Agradecimientos
 
