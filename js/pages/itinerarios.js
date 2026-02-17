@@ -428,10 +428,10 @@ function showToast(message, type = 'success') {
 
 function initMobileMenu() {
   const toggle = document.getElementById('mobile-menu-toggle');
-  const nav = document.getElementById('main-nav');
+  const nav = document.querySelector('.main-nav');
   const overlay = document.getElementById('nav-overlay');
 
-  if (!toggle) return;
+  if (!toggle || !nav) return;
 
   function openMenu() {
     nav.classList.add('open');
