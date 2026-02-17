@@ -1,0 +1,1792 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Wanderlust - Gestiona tus itinerarios de viaje">
+  <title>Itinerarios - Wanderlust</title>
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="../css/reset.css">
+  <link rel="stylesheet" href="../css/variables.css">
+  <link rel="stylesheet" href="../css/layout.css">
+  <link rel="stylesheet" href="../css/components.css">
+
+  <style>
+    /* =====================================================
+       Page Specific Styles
+       ===================================================== */
+
+    .page-header {
+      background: linear-gradient(135deg, var(--background) 0%, var(--background-light) 100%);
+      border-bottom: 1px solid var(--border);
+      padding: var(--space-10) var(--space-4) var(--space-8);
+    }
+
+    .page-header-content {
+      max-width: var(--container-xl);
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-4);
+    }
+
+    .page-title {
+      font-size: var(--text-3xl);
+      font-weight: var(--font-bold);
+      color: var(--text-primary);
+      line-height: 1.2;
+    }
+
+    .page-subtitle {
+      color: var(--text-muted);
+      font-size: var(--text-base);
+    }
+
+    .page-actions {
+      display: flex;
+      gap: var(--space-3);
+      flex-wrap: wrap;
+    }
+
+    @media (min-width: 768px) {
+      .page-header-content {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .page-title {
+        font-size: var(--text-4xl);
+      }
+    }
+
+    /* =====================================================
+       Stats Bar
+       ===================================================== */
+
+    .stats-bar {
+      background-color: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: var(--space-4);
+    }
+
+    .stats-bar-content {
+      max-width: var(--container-xl);
+      margin: 0 auto;
+      display: flex;
+      gap: var(--space-6);
+      overflow-x: auto;
+      padding-bottom: var(--space-1);
+    }
+
+    .stat-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      flex-shrink: 0;
+    }
+
+    .stat-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(59, 130, 246, 0.1);
+    }
+
+    .stat-icon svg {
+      color: var(--primary);
+      width: 20px;
+      height: 20px;
+    }
+
+    .stat-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .stat-value {
+      font-size: var(--text-xl);
+      font-weight: var(--font-bold);
+      color: var(--text-primary);
+      line-height: 1;
+    }
+
+    .stat-label {
+      font-size: var(--text-xs);
+      color: var(--text-muted);
+      margin-top: var(--space-1);
+    }
+
+    /* =====================================================
+       Main Content
+       ===================================================== */
+
+    .itinerarios-main {
+      max-width: var(--container-xl);
+      margin: 0 auto;
+      padding: var(--space-8) var(--space-4);
+    }
+
+    /* =====================================================
+       Toolbar (filtros + búsqueda)
+       ===================================================== */
+
+    .toolbar {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+      margin-bottom: var(--space-6);
+    }
+
+    .toolbar-search {
+      position: relative;
+      flex: 1;
+    }
+
+    .toolbar-search svg {
+      position: absolute;
+      left: var(--space-3);
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      width: 18px;
+      height: 18px;
+      pointer-events: none;
+    }
+
+    .toolbar-search input {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      color: var(--text-primary);
+      padding: var(--space-3) var(--space-3) var(--space-3) var(--space-10);
+      font-size: var(--text-sm);
+      transition: border-color var(--transition-fast);
+      min-height: 44px;
+    }
+
+    .toolbar-search input:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    .toolbar-search input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .toolbar-filters {
+      display: flex;
+      gap: var(--space-2);
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      padding: var(--space-2) var(--space-4);
+      border-radius: var(--radius-full);
+      font-size: var(--text-sm);
+      font-weight: var(--font-medium);
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      white-space: nowrap;
+    }
+
+    .filter-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .filter-btn.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: white;
+    }
+
+    @media (min-width: 768px) {
+      .toolbar {
+        flex-direction: row;
+        align-items: center;
+      }
+
+      .toolbar-search {
+        max-width: 320px;
+      }
+    }
+
+    /* =====================================================
+       Empty State
+       ===================================================== */
+
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-20) var(--space-4);
+      text-align: center;
+      gap: var(--space-4);
+    }
+
+    .empty-state-icon {
+      width: 80px;
+      height: 80px;
+      background: rgba(59, 130, 246, 0.1);
+      border-radius: var(--radius-full);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: var(--space-2);
+    }
+
+    .empty-state-icon svg {
+      width: 40px;
+      height: 40px;
+      color: var(--primary);
+    }
+
+    .empty-state h3 {
+      font-size: var(--text-xl);
+      font-weight: var(--font-semibold);
+      color: var(--text-primary);
+    }
+
+    .empty-state p {
+      color: var(--text-muted);
+      font-size: var(--text-base);
+      max-width: 320px;
+    }
+
+    /* =====================================================
+       Itinerarios Grid
+       ===================================================== */
+
+    .itinerarios-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--space-4);
+    }
+
+    @media (min-width: 640px) {
+      .itinerarios-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .itinerarios-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    /* =====================================================
+       Itinerario Card
+       ===================================================== */
+
+    .itinerario-card {
+      background: var(--surface);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      transition: all var(--transition-base);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .itinerario-card:hover {
+      border-color: var(--primary);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-xl);
+    }
+
+    .card-color-bar {
+      height: 4px;
+      background: linear-gradient(90deg, var(--primary), var(--primary-light));
+    }
+
+    .card-color-bar.green {
+      background: linear-gradient(90deg, #10b981, #34d399);
+    }
+
+    .card-color-bar.orange {
+      background: linear-gradient(90deg, #f59e0b, #fbbf24);
+    }
+
+    .card-color-bar.purple {
+      background: linear-gradient(90deg, #8b5cf6, #a78bfa);
+    }
+
+    .card-color-bar.pink {
+      background: linear-gradient(90deg, #ec4899, #f472b6);
+    }
+
+    .itinerario-card-body {
+      padding: var(--space-5);
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+    }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: var(--space-2);
+    }
+
+    .card-destination {
+      font-size: var(--text-lg);
+      font-weight: var(--font-bold);
+      color: var(--text-primary);
+      line-height: 1.3;
+    }
+
+    .card-name {
+      font-size: var(--text-sm);
+      color: var(--text-muted);
+      margin-top: var(--space-1);
+    }
+
+    .card-status {
+      padding: var(--space-1) var(--space-3);
+      border-radius: var(--radius-full);
+      font-size: var(--text-xs);
+      font-weight: var(--font-medium);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .status-planificando {
+      background: rgba(59, 130, 246, 0.15);
+      color: var(--primary-light);
+    }
+
+    .status-confirmado {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+    }
+
+    .status-completado {
+      background: rgba(148, 163, 184, 0.15);
+      color: var(--text-muted);
+    }
+
+    .card-meta {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+    }
+
+    .card-meta-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-size: var(--text-sm);
+      color: var(--text-secondary);
+    }
+
+    .card-meta-item svg {
+      width: 14px;
+      height: 14px;
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+
+    .card-footer {
+      padding: var(--space-4) var(--space-5);
+      border-top: 1px solid var(--border-light);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .card-days {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-size: var(--text-sm);
+      font-weight: var(--font-semibold);
+      color: var(--primary-light);
+    }
+
+    .card-days svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .card-actions {
+      display: flex;
+      gap: var(--space-1);
+    }
+
+    .card-action-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all var(--transition-fast);
+      color: var(--text-muted);
+    }
+
+    .card-action-btn:hover {
+      background: var(--surface-hover);
+      color: var(--text-primary);
+    }
+
+    .card-action-btn.delete:hover {
+      background: rgba(239, 68, 68, 0.1);
+      color: var(--error);
+    }
+
+    .card-action-btn svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    /* =====================================================
+       Modal
+       ===================================================== */
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(4px);
+      z-index: var(--z-modal-backdrop);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity var(--transition-base);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-4);
+    }
+
+    .modal-backdrop.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-2xl);
+      width: 100%;
+      max-width: 560px;
+      max-height: 90vh;
+      overflow-y: auto;
+      transform: scale(0.95) translateY(10px);
+      transition: transform var(--transition-base);
+      box-shadow: var(--shadow-2xl);
+    }
+
+    .modal-backdrop.active .modal {
+      transform: scale(1) translateY(0);
+    }
+
+    .modal-header {
+      padding: var(--space-6);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-title {
+      font-size: var(--text-xl);
+      font-weight: var(--font-bold);
+      color: var(--text-primary);
+    }
+
+    .modal-close {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      transition: all var(--transition-fast);
+    }
+
+    .modal-close:hover {
+      background: var(--surface-hover);
+      color: var(--text-primary);
+    }
+
+    .modal-close svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .modal-body {
+      padding: var(--space-6);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-5);
+    }
+
+    .modal-footer {
+      padding: var(--space-5) var(--space-6);
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: flex-end;
+      gap: var(--space-3);
+    }
+
+    /* =====================================================
+       Form Elements
+       ===================================================== */
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--space-4);
+    }
+
+    @media (min-width: 480px) {
+      .form-row {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .form-label {
+      font-size: var(--text-sm);
+      font-weight: var(--font-medium);
+      color: var(--text-secondary);
+    }
+
+    .form-label span {
+      color: var(--error);
+      margin-left: 2px;
+    }
+
+    .form-input,
+    .form-select,
+    .form-textarea {
+      background: var(--background-light);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      color: var(--text-primary);
+      padding: var(--space-3) var(--space-4);
+      font-size: var(--text-sm);
+      transition: border-color var(--transition-fast);
+      width: 100%;
+      min-height: 44px;
+      font-family: var(--font-family-base);
+    }
+
+    .form-input:focus,
+    .form-select:focus,
+    .form-textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .form-input::placeholder,
+    .form-textarea::placeholder {
+      color: var(--text-muted);
+    }
+
+    .form-select {
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right var(--space-3) center;
+      padding-right: var(--space-10);
+    }
+
+    .form-select option {
+      background: var(--surface);
+      color: var(--text-primary);
+    }
+
+    .form-textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    .form-error {
+      font-size: var(--text-xs);
+      color: var(--error);
+      display: none;
+    }
+
+    .form-group.has-error .form-input,
+    .form-group.has-error .form-select {
+      border-color: var(--error);
+    }
+
+    .form-group.has-error .form-error {
+      display: block;
+    }
+
+    /* =====================================================
+       Detail Panel (Vista detalle)
+       ===================================================== */
+
+    .detail-modal .modal {
+      max-width: 680px;
+    }
+
+    .detail-color-bar {
+      height: 6px;
+      background: linear-gradient(90deg, var(--primary), var(--primary-light));
+      border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    }
+
+    .detail-header-info {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-1);
+    }
+
+    .detail-destination {
+      font-size: var(--text-2xl);
+      font-weight: var(--font-bold);
+      color: var(--text-primary);
+    }
+
+    .detail-name {
+      font-size: var(--text-sm);
+      color: var(--text-muted);
+    }
+
+    .detail-meta-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-4);
+    }
+
+    .detail-meta-card {
+      background: var(--background-light);
+      border-radius: var(--radius-lg);
+      padding: var(--space-4);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-1);
+    }
+
+    .detail-meta-label {
+      font-size: var(--text-xs);
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .detail-meta-value {
+      font-size: var(--text-base);
+      font-weight: var(--font-semibold);
+      color: var(--text-primary);
+    }
+
+    .detail-notes {
+      background: var(--background-light);
+      border-radius: var(--radius-lg);
+      padding: var(--space-4);
+    }
+
+    .detail-notes-title {
+      font-size: var(--text-sm);
+      font-weight: var(--font-semibold);
+      color: var(--text-secondary);
+      margin-bottom: var(--space-2);
+    }
+
+    .detail-notes-text {
+      font-size: var(--text-sm);
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    /* =====================================================
+       Confirm Delete Modal
+       ===================================================== */
+
+    .confirm-modal .modal {
+      max-width: 400px;
+    }
+
+    .confirm-icon {
+      width: 56px;
+      height: 56px;
+      background: rgba(239, 68, 68, 0.1);
+      border-radius: var(--radius-full);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto var(--space-4);
+    }
+
+    .confirm-icon svg {
+      width: 28px;
+      height: 28px;
+      color: var(--error);
+    }
+
+    .confirm-body {
+      text-align: center;
+      padding: var(--space-6);
+    }
+
+    .confirm-title {
+      font-size: var(--text-lg);
+      font-weight: var(--font-bold);
+      color: var(--text-primary);
+      margin-bottom: var(--space-2);
+    }
+
+    .confirm-text {
+      font-size: var(--text-sm);
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    .btn-danger {
+      background-color: var(--error);
+      color: white;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
+      padding: var(--space-3) var(--space-6);
+      border-radius: var(--radius-md);
+      font-weight: var(--font-medium);
+      font-size: var(--text-base);
+      transition: all var(--transition-base);
+      cursor: pointer;
+      border: none;
+      min-height: 44px;
+    }
+
+    .btn-danger:hover {
+      background-color: #dc2626;
+      transform: translateY(-1px);
+    }
+
+    /* =====================================================
+       Toast Notification
+       ===================================================== */
+
+    .toast-container {
+      position: fixed;
+      bottom: var(--space-6);
+      right: var(--space-4);
+      z-index: var(--z-notification);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+      pointer-events: none;
+    }
+
+    .toast {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-4) var(--space-5);
+      border-radius: var(--radius-lg);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-xl);
+      min-width: 280px;
+      max-width: 360px;
+      animation: toastIn var(--transition-base) ease forwards;
+      pointer-events: auto;
+    }
+
+    .toast.removing {
+      animation: toastOut var(--transition-base) ease forwards;
+    }
+
+    .toast-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .toast-icon svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .toast.success .toast-icon {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--success);
+    }
+
+    .toast.error .toast-icon {
+      background: rgba(239, 68, 68, 0.15);
+      color: var(--error);
+    }
+
+    .toast.info .toast-icon {
+      background: rgba(59, 130, 246, 0.15);
+      color: var(--primary);
+    }
+
+    .toast-message {
+      font-size: var(--text-sm);
+      color: var(--text-primary);
+      flex: 1;
+    }
+
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateX(20px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    @keyframes toastOut {
+      from { opacity: 1; transform: translateX(0); }
+      to   { opacity: 0; transform: translateX(20px); }
+    }
+
+    /* =====================================================
+       No Results
+       ===================================================== */
+
+    .no-results {
+      text-align: center;
+      padding: var(--space-16) var(--space-4);
+      color: var(--text-muted);
+      font-size: var(--text-base);
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Header -->
+  <header class="main-header">
+    <div class="header-content">
+      <div class="logo">
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="10" r="3"/>
+          <path d="M12 21.7C17.3 17 20 13 20 10a8 8 0 1 0-16 0c0 3 2.7 6.9 8 11.7z"/>
+        </svg>
+        <h2>Wanderlust</h2>
+      </div>
+
+      <button class="mobile-menu-toggle hide-desktop" aria-label="Abrir menú" id="mobile-menu-toggle">
+        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+      </button>
+
+      <nav class="main-nav" id="main-nav" aria-label="Navegación principal">
+        <a href="../index.html">Inicio</a>
+        <a href="destinos.html">Destinos</a>
+        <a href="itinerarios.html" aria-current="page">Itinerarios</a>
+        <a href="contacto.html">Contacto</a>
+      </nav>
+
+      <div class="header-actions hide-mobile">
+        <a href="login.html" class="btn-secondary">Iniciar sesión</a>
+      </div>
+    </div>
+  </header>
+  <div class="nav-overlay" id="nav-overlay"></div>
+
+  <main>
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="page-header-content">
+        <div>
+          <h1 class="page-title">Mis Itinerarios</h1>
+          <p class="page-subtitle">Organiza y planifica todos tus viajes</p>
+        </div>
+        <div class="page-actions">
+          <button class="btn-primary" id="btn-nuevo-itinerario">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 5v14M5 12h14"/>
+            </svg>
+            Nuevo Itinerario
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats Bar -->
+    <div class="stats-bar">
+      <div class="stats-bar-content">
+        <div class="stat-item">
+          <div class="stat-icon">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+            </svg>
+          </div>
+          <div class="stat-info">
+            <span class="stat-value" id="stat-total">0</span>
+            <span class="stat-label">Total</span>
+          </div>
+        </div>
+
+        <div class="stat-item">
+          <div class="stat-icon">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M12 6v6l4 2"/>
+            </svg>
+          </div>
+          <div class="stat-info">
+            <span class="stat-value" id="stat-planificando">0</span>
+            <span class="stat-label">Planificando</span>
+          </div>
+        </div>
+
+        <div class="stat-item">
+          <div class="stat-icon">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+          <div class="stat-info">
+            <span class="stat-value" id="stat-confirmado">0</span>
+            <span class="stat-label">Confirmados</span>
+          </div>
+        </div>
+
+        <div class="stat-item">
+          <div class="stat-icon">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M5 3l14 9-14 9V3z"/>
+            </svg>
+          </div>
+          <div class="stat-info">
+            <span class="stat-value" id="stat-completado">0</span>
+            <span class="stat-label">Completados</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main -->
+    <div class="itinerarios-main">
+
+      <!-- Toolbar -->
+      <div class="toolbar">
+        <div class="toolbar-search">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+          </svg>
+          <input type="search" id="search-input" placeholder="Buscar destino o nombre...">
+        </div>
+
+        <div class="toolbar-filters">
+          <button class="filter-btn active" data-filter="todos">Todos</button>
+          <button class="filter-btn" data-filter="planificando">Planificando</button>
+          <button class="filter-btn" data-filter="confirmado">Confirmados</button>
+          <button class="filter-btn" data-filter="completado">Completados</button>
+        </div>
+      </div>
+
+      <!-- Grid de itinerarios -->
+      <div id="itinerarios-grid" class="itinerarios-grid"></div>
+
+      <!-- Empty State -->
+      <div id="empty-state" class="empty-state" style="display:none;">
+        <div class="empty-state-icon">
+          <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+          </svg>
+        </div>
+        <h3>Aún no tienes itinerarios</h3>
+        <p>Crea tu primer itinerario y empieza a planificar tu próxima aventura.</p>
+        <button class="btn-primary" id="btn-empty-nuevo">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 5v14M5 12h14"/>
+          </svg>
+          Crear primer itinerario
+        </button>
+      </div>
+
+      <!-- No results -->
+      <div id="no-results" class="no-results" style="display:none;">
+        No se encontraron itinerarios con ese criterio.
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="main-footer">
+    <div class="footer-content">
+      <div class="footer-info">
+        <div class="logo">
+          <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="10" r="3"/>
+            <path d="M12 21.7C17.3 17 20 13 20 10a8 8 0 1 0-16 0c0 3 2.7 6.9 8 11.7z"/>
+          </svg>
+          <span>Wanderlust</span>
+        </div>
+        <p>Tu compañero perfecto para planificar viajes inolvidables</p>
+      </div>
+      <nav class="footer-nav" aria-label="Navegación del pie de página">
+        <div class="footer-column">
+          <h3>Producto</h3>
+          <a href="destinos.html">Destinos</a>
+          <a href="itinerarios.html">Itinerarios</a>
+        </div>
+        <div class="footer-column">
+          <h3>Compañía</h3>
+          <a href="#">Sobre nosotros</a>
+          <a href="contacto.html">Contacto</a>
+        </div>
+        <div class="footer-column">
+          <h3>Legal</h3>
+          <a href="#">Privacidad</a>
+          <a href="#">Términos</a>
+        </div>
+      </nav>
+    </div>
+    <div class="footer-bottom">
+      <small>&copy; 2026 Wanderlust. Todos los derechos reservados.</small>
+    </div>
+  </footer>
+
+  <!-- ======================================================
+       MODAL: Crear / Editar Itinerario
+       ====================================================== -->
+  <div class="modal-backdrop" id="modal-form" role="dialog" aria-modal="true" aria-labelledby="modal-form-title">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modal-form-title">Nuevo Itinerario</h2>
+        <button class="modal-close" id="modal-form-close" aria-label="Cerrar">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M18 6L6 18M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="form-group" id="fg-nombre">
+          <label class="form-label" for="input-nombre">Nombre del viaje <span>*</span></label>
+          <input type="text" id="input-nombre" class="form-input" placeholder="Ej: Vacaciones en familia">
+          <span class="form-error" id="error-nombre">El nombre es obligatorio</span>
+        </div>
+
+        <div class="form-group" id="fg-destino">
+          <label class="form-label" for="input-destino">Destino <span>*</span></label>
+          <input type="text" id="input-destino" class="form-input" placeholder="Ej: París, Francia">
+          <span class="form-error" id="error-destino">El destino es obligatorio</span>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group" id="fg-fecha-inicio">
+            <label class="form-label" for="input-fecha-inicio">Fecha de inicio <span>*</span></label>
+            <input type="date" id="input-fecha-inicio" class="form-input">
+            <span class="form-error" id="error-fecha-inicio">Selecciona una fecha</span>
+          </div>
+          <div class="form-group" id="fg-fecha-fin">
+            <label class="form-label" for="input-fecha-fin">Fecha de fin <span>*</span></label>
+            <input type="date" id="input-fecha-fin" class="form-input">
+            <span class="form-error" id="error-fecha-fin">La fecha de fin debe ser posterior</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="input-estado">Estado</label>
+          <select id="input-estado" class="form-select">
+            <option value="planificando">Planificando</option>
+            <option value="confirmado">Confirmado</option>
+            <option value="completado">Completado</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="input-notas">Notas (opcional)</label>
+          <textarea id="input-notas" class="form-textarea" placeholder="Agrega notas, ideas o recordatorios..."></textarea>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-secondary" id="btn-form-cancelar">Cancelar</button>
+        <button class="btn-primary" id="btn-form-guardar">Guardar itinerario</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================
+       MODAL: Ver Detalle
+       ====================================================== -->
+  <div class="modal-backdrop detail-modal" id="modal-detail" role="dialog" aria-modal="true">
+    <div class="modal">
+      <div class="detail-color-bar" id="detail-color-bar"></div>
+      <div class="modal-header">
+        <div class="detail-header-info">
+          <h2 class="detail-destination" id="detail-destination"></h2>
+          <p class="detail-name" id="detail-name"></p>
+        </div>
+        <button class="modal-close" id="modal-detail-close" aria-label="Cerrar">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M18 6L6 18M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="detail-meta-grid">
+          <div class="detail-meta-card">
+            <span class="detail-meta-label">Fecha inicio</span>
+            <span class="detail-meta-value" id="detail-fecha-inicio">-</span>
+          </div>
+          <div class="detail-meta-card">
+            <span class="detail-meta-label">Fecha fin</span>
+            <span class="detail-meta-value" id="detail-fecha-fin">-</span>
+          </div>
+          <div class="detail-meta-card">
+            <span class="detail-meta-label">Duración</span>
+            <span class="detail-meta-value" id="detail-duracion">-</span>
+          </div>
+          <div class="detail-meta-card">
+            <span class="detail-meta-label">Estado</span>
+            <span class="detail-meta-value" id="detail-estado">-</span>
+          </div>
+        </div>
+
+        <div class="detail-notes" id="detail-notes-container">
+          <p class="detail-notes-title">📝 Notas</p>
+          <p class="detail-notes-text" id="detail-notes"></p>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-secondary" id="btn-detail-editar">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+            <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+          </svg>
+          Editar
+        </button>
+        <button class="btn-primary" id="btn-detail-close-ok">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================
+       MODAL: Confirmar Eliminación
+       ====================================================== -->
+  <div class="modal-backdrop confirm-modal" id="modal-confirm" role="dialog" aria-modal="true">
+    <div class="modal">
+      <div class="confirm-body">
+        <div class="confirm-icon">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M3 6h18M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6M10 11v6M14 11v6M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/>
+          </svg>
+        </div>
+        <h3 class="confirm-title">¿Eliminar itinerario?</h3>
+        <p class="confirm-text">Esta acción no se puede deshacer. El itinerario "<strong id="confirm-name"></strong>" será eliminado permanentemente.</p>
+      </div>
+      <div class="modal-footer" style="justify-content: center;">
+        <button class="btn-secondary" id="btn-confirm-cancelar">Cancelar</button>
+        <button class="btn-danger" id="btn-confirm-eliminar">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M3 6h18M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/>
+          </svg>
+          Eliminar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Scripts -->
+  <script type="module">
+    import { CONFIG, isMobile } from '../js/config.js';
+    import { setStorage, getStorage, formatDate, sanitize } from '../js/utils.js';
+
+    // =====================================================
+    // Storage Key
+    // =====================================================
+    const STORAGE_KEY = CONFIG.STORAGE_KEYS.SAVED_ITINERARIES;
+
+    // =====================================================
+    // Estado de la aplicación
+    // =====================================================
+    const state = {
+      itinerarios: [],
+      filtroActual: 'todos',
+      busqueda: '',
+      editandoId: null,
+      eliminandoId: null,
+    };
+
+    // =====================================================
+    // Colores para las cards
+    // =====================================================
+    const COLORES = ['blue', 'green', 'orange', 'purple', 'pink'];
+
+    function getColorPorId(id) {
+      const index = parseInt(id.slice(-4), 16) % COLORES.length;
+      return COLORES[index] || 'blue';
+    }
+
+    // =====================================================
+    // CRUD - Itinerarios
+    // =====================================================
+
+    function cargarItinerarios() {
+      state.itinerarios = getStorage(STORAGE_KEY, []);
+    }
+
+    function guardarItinerarios() {
+      setStorage(STORAGE_KEY, state.itinerarios);
+    }
+
+    function crearItinerario(datos) {
+      const nuevo = {
+        id: 'it_' + Date.now().toString(16),
+        ...datos,
+        creadoEn: new Date().toISOString(),
+      };
+      state.itinerarios.unshift(nuevo);
+      guardarItinerarios();
+      return nuevo;
+    }
+
+    function editarItinerario(id, datos) {
+      const index = state.itinerarios.findIndex(it => it.id === id);
+      if (index === -1) return false;
+      state.itinerarios[index] = {
+        ...state.itinerarios[index],
+        ...datos,
+        actualizadoEn: new Date().toISOString(),
+      };
+      guardarItinerarios();
+      return true;
+    }
+
+    function eliminarItinerario(id) {
+      state.itinerarios = state.itinerarios.filter(it => it.id !== id);
+      guardarItinerarios();
+    }
+
+    // =====================================================
+    // Utilidades de fechas
+    // =====================================================
+
+    function calcularDias(fechaInicio, fechaFin) {
+      const inicio = new Date(fechaInicio);
+      const fin = new Date(fechaFin);
+      const diff = fin - inicio;
+      return Math.max(1, Math.ceil(diff / (1000 * 60 * 60 * 24)) + 1);
+    }
+
+    function formatearFecha(fecha) {
+      if (!fecha) return '-';
+      const [year, month, day] = fecha.split('-');
+      return `${day}/${month}/${year}`;
+    }
+
+    function getLabelEstado(estado) {
+      const labels = {
+        planificando: 'Planificando',
+        confirmado: 'Confirmado',
+        completado: 'Completado',
+      };
+      return labels[estado] || estado;
+    }
+
+    // =====================================================
+    // Render
+    // =====================================================
+
+    function getItinerariosFiltrados() {
+      let lista = [...state.itinerarios];
+
+      if (state.filtroActual !== 'todos') {
+        lista = lista.filter(it => it.estado === state.filtroActual);
+      }
+
+      if (state.busqueda.trim()) {
+        const q = state.busqueda.toLowerCase();
+        lista = lista.filter(it =>
+          it.destino.toLowerCase().includes(q) ||
+          it.nombre.toLowerCase().includes(q)
+        );
+      }
+
+      return lista;
+    }
+
+    function renderCards() {
+      const grid = document.getElementById('itinerarios-grid');
+      const emptyState = document.getElementById('empty-state');
+      const noResults = document.getElementById('no-results');
+
+      const filtrados = getItinerariosFiltrados();
+
+      // Mostrar empty state si no hay ningún itinerario
+      if (state.itinerarios.length === 0) {
+        grid.style.display = 'none';
+        emptyState.style.display = 'flex';
+        noResults.style.display = 'none';
+        return;
+      }
+
+      emptyState.style.display = 'none';
+
+      // Mostrar "no results" si hay filtro pero no hay coincidencias
+      if (filtrados.length === 0) {
+        grid.style.display = 'none';
+        noResults.style.display = 'block';
+        return;
+      }
+
+      grid.style.display = 'grid';
+      noResults.style.display = 'none';
+
+      grid.innerHTML = filtrados.map(it => {
+        const dias = calcularDias(it.fechaInicio, it.fechaFin);
+        const color = getColorPorId(it.id);
+
+        return `
+          <article class="itinerario-card" data-id="${it.id}">
+            <div class="card-color-bar ${color}"></div>
+            <div class="itinerario-card-body">
+              <div class="card-top">
+                <div>
+                  <h3 class="card-destination">${sanitize(it.destino)}</h3>
+                  <p class="card-name">${sanitize(it.nombre)}</p>
+                </div>
+                <span class="card-status status-${it.estado}">${getLabelEstado(it.estado)}</span>
+              </div>
+              <div class="card-meta">
+                <div class="card-meta-item">
+                  <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                    <line x1="16" y1="2" x2="16" y2="6"/>
+                    <line x1="8" y1="2" x2="8" y2="6"/>
+                    <line x1="3" y1="10" x2="21" y2="10"/>
+                  </svg>
+                  ${formatearFecha(it.fechaInicio)} → ${formatearFecha(it.fechaFin)}
+                </div>
+                ${it.notas ? `
+                <div class="card-meta-item">
+                  <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                  </svg>
+                  Tiene notas
+                </div>` : ''}
+              </div>
+            </div>
+            <div class="card-footer">
+              <div class="card-days">
+                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="10"/>
+                  <polyline points="12 6 12 12 16 14"/>
+                </svg>
+                ${dias} día${dias !== 1 ? 's' : ''}
+              </div>
+              <div class="card-actions">
+                <button class="card-action-btn" data-action="ver" data-id="${it.id}" title="Ver detalle">
+                  <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                    <circle cx="12" cy="12" r="3"/>
+                  </svg>
+                </button>
+                <button class="card-action-btn" data-action="editar" data-id="${it.id}" title="Editar">
+                  <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+                    <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                  </svg>
+                </button>
+                <button class="card-action-btn delete" data-action="eliminar" data-id="${it.id}" title="Eliminar">
+                  <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path d="M3 6h18M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6M10 11v6M14 11v6"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </article>
+        `;
+      }).join('');
+
+      // Eventos de las cards
+      grid.querySelectorAll('[data-action]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const { action, id } = btn.dataset;
+          if (action === 'ver') abrirDetalle(id);
+          if (action === 'editar') abrirFormEditar(id);
+          if (action === 'eliminar') abrirConfirmEliminar(id);
+        });
+      });
+
+      // Click en card abre detalle
+      grid.querySelectorAll('.itinerario-card').forEach(card => {
+        card.addEventListener('click', () => {
+          abrirDetalle(card.dataset.id);
+        });
+      });
+    }
+
+    function renderStats() {
+      const total = state.itinerarios.length;
+      const planificando = state.itinerarios.filter(it => it.estado === 'planificando').length;
+      const confirmado = state.itinerarios.filter(it => it.estado === 'confirmado').length;
+      const completado = state.itinerarios.filter(it => it.estado === 'completado').length;
+
+      document.getElementById('stat-total').textContent = total;
+      document.getElementById('stat-planificando').textContent = planificando;
+      document.getElementById('stat-confirmado').textContent = confirmado;
+      document.getElementById('stat-completado').textContent = completado;
+    }
+
+    function render() {
+      renderCards();
+      renderStats();
+    }
+
+    // =====================================================
+    // Modal Helpers
+    // =====================================================
+
+    function abrirModal(id) {
+      document.getElementById(id).classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function cerrarModal(id) {
+      document.getElementById(id).classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    // =====================================================
+    // Modal: Formulario Crear/Editar
+    // =====================================================
+
+    function abrirFormNuevo() {
+      state.editandoId = null;
+      document.getElementById('modal-form-title').textContent = 'Nuevo Itinerario';
+      document.getElementById('btn-form-guardar').textContent = 'Guardar itinerario';
+      limpiarForm();
+      abrirModal('modal-form');
+      setTimeout(() => document.getElementById('input-nombre').focus(), 100);
+    }
+
+    function abrirFormEditar(id) {
+      const it = state.itinerarios.find(it => it.id === id);
+      if (!it) return;
+
+      state.editandoId = id;
+      cerrarModal('modal-detail');
+
+      document.getElementById('modal-form-title').textContent = 'Editar Itinerario';
+      document.getElementById('btn-form-guardar').textContent = 'Guardar cambios';
+
+      document.getElementById('input-nombre').value = it.nombre;
+      document.getElementById('input-destino').value = it.destino;
+      document.getElementById('input-fecha-inicio').value = it.fechaInicio;
+      document.getElementById('input-fecha-fin').value = it.fechaFin;
+      document.getElementById('input-estado').value = it.estado;
+      document.getElementById('input-notas').value = it.notas || '';
+
+      limpiarErroresForm();
+      abrirModal('modal-form');
+    }
+
+    function limpiarForm() {
+      ['input-nombre', 'input-destino', 'input-fecha-inicio', 'input-fecha-fin', 'input-notas'].forEach(id => {
+        document.getElementById(id).value = '';
+      });
+      document.getElementById('input-estado').value = 'planificando';
+      limpiarErroresForm();
+    }
+
+    function limpiarErroresForm() {
+      ['fg-nombre', 'fg-destino', 'fg-fecha-inicio', 'fg-fecha-fin'].forEach(id => {
+        document.getElementById(id).classList.remove('has-error');
+      });
+    }
+
+    function validarForm() {
+      let valido = true;
+      limpiarErroresForm();
+
+      const nombre = document.getElementById('input-nombre').value.trim();
+      const destino = document.getElementById('input-destino').value.trim();
+      const fechaInicio = document.getElementById('input-fecha-inicio').value;
+      const fechaFin = document.getElementById('input-fecha-fin').value;
+
+      if (!nombre) {
+        document.getElementById('fg-nombre').classList.add('has-error');
+        valido = false;
+      }
+
+      if (!destino) {
+        document.getElementById('fg-destino').classList.add('has-error');
+        valido = false;
+      }
+
+      if (!fechaInicio) {
+        document.getElementById('fg-fecha-inicio').classList.add('has-error');
+        valido = false;
+      }
+
+      if (!fechaFin || (fechaInicio && fechaFin < fechaInicio)) {
+        document.getElementById('fg-fecha-fin').classList.add('has-error');
+        valido = false;
+      }
+
+      return valido;
+    }
+
+    function handleGuardar() {
+      if (!validarForm()) return;
+
+      const datos = {
+        nombre: document.getElementById('input-nombre').value.trim(),
+        destino: document.getElementById('input-destino').value.trim(),
+        fechaInicio: document.getElementById('input-fecha-inicio').value,
+        fechaFin: document.getElementById('input-fecha-fin').value,
+        estado: document.getElementById('input-estado').value,
+        notas: document.getElementById('input-notas').value.trim(),
+      };
+
+      if (state.editandoId) {
+        editarItinerario(state.editandoId, datos);
+        showToast('Itinerario actualizado correctamente', 'success');
+      } else {
+        crearItinerario(datos);
+        showToast('Itinerario creado correctamente', 'success');
+      }
+
+      cerrarModal('modal-form');
+      render();
+    }
+
+    // =====================================================
+    // Modal: Detalle
+    // =====================================================
+
+    function abrirDetalle(id) {
+      // Navegar a la página de detalle con el ID del itinerario
+      window.location.href = `itinerario-detalle.html?id=${id}`;
+      return;
+
+      const it = state.itinerarios.find(it => it.id === id);
+      if (!it) return;
+
+      const dias = calcularDias(it.fechaInicio, it.fechaFin);
+      const color = getColorPorId(it.id);
+
+      const colorMap = {
+        blue: 'linear-gradient(90deg, #3b82f6, #60a5fa)',
+        green: 'linear-gradient(90deg, #10b981, #34d399)',
+        orange: 'linear-gradient(90deg, #f59e0b, #fbbf24)',
+        purple: 'linear-gradient(90deg, #8b5cf6, #a78bfa)',
+        pink: 'linear-gradient(90deg, #ec4899, #f472b6)',
+      };
+
+      document.getElementById('detail-color-bar').style.background = colorMap[color];
+      document.getElementById('detail-destination').textContent = it.destino;
+      document.getElementById('detail-name').textContent = it.nombre;
+      document.getElementById('detail-fecha-inicio').textContent = formatearFecha(it.fechaInicio);
+      document.getElementById('detail-fecha-fin').textContent = formatearFecha(it.fechaFin);
+      document.getElementById('detail-duracion').textContent = `${dias} día${dias !== 1 ? 's' : ''}`;
+      document.getElementById('detail-estado').textContent = getLabelEstado(it.estado);
+
+      const notesContainer = document.getElementById('detail-notes-container');
+      const notesText = document.getElementById('detail-notes');
+
+      if (it.notas) {
+        notesContainer.style.display = 'block';
+        notesText.textContent = it.notas;
+      } else {
+        notesContainer.style.display = 'none';
+      }
+
+      document.getElementById('btn-detail-editar').onclick = () => abrirFormEditar(id);
+      abrirModal('modal-detail');
+    }
+
+    // =====================================================
+    // Modal: Confirmar Eliminación
+    // =====================================================
+
+    function abrirConfirmEliminar(id) {
+      const it = state.itinerarios.find(it => it.id === id);
+      if (!it) return;
+
+      state.eliminandoId = id;
+      document.getElementById('confirm-name').textContent = `${it.nombre} - ${it.destino}`;
+      abrirModal('modal-confirm');
+    }
+
+    function handleEliminar() {
+      if (!state.eliminandoId) return;
+      eliminarItinerario(state.eliminandoId);
+      state.eliminandoId = null;
+      cerrarModal('modal-confirm');
+      render();
+      showToast('Itinerario eliminado', 'info');
+    }
+
+    // =====================================================
+    // Toast Notifications
+    // =====================================================
+
+    function showToast(message, type = 'success') {
+      const icons = {
+        success: `<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`,
+        error: `<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>`,
+        info: `<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`,
+      };
+
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.innerHTML = `
+        <div class="toast-icon">${icons[type]}</div>
+        <span class="toast-message">${sanitize(message)}</span>
+      `;
+
+      document.getElementById('toast-container').appendChild(toast);
+
+      setTimeout(() => {
+        toast.classList.add('removing');
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+
+    // =====================================================
+    // Menú móvil
+    // =====================================================
+
+    function initMobileMenu() {
+      const toggle = document.getElementById('mobile-menu-toggle');
+      const nav = document.getElementById('main-nav');
+      const overlay = document.getElementById('nav-overlay');
+
+      if (!toggle) return;
+
+      function openMenu() {
+        nav.classList.add('open');
+        overlay.classList.add('active');
+        toggle.setAttribute('aria-expanded', 'true');
+        document.body.style.overflow = 'hidden';
+      }
+
+      function closeMenu() {
+        nav.classList.remove('open');
+        overlay.classList.remove('active');
+        toggle.setAttribute('aria-expanded', 'false');
+        document.body.style.overflow = '';
+      }
+
+      toggle.addEventListener('click', () => {
+        nav.classList.contains('open') ? closeMenu() : openMenu();
+      });
+
+      overlay.addEventListener('click', closeMenu);
+
+      nav.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', closeMenu);
+      });
+
+      document.addEventListener('keydown', e => {
+        if (e.key === 'Escape' && nav.classList.contains('open')) closeMenu();
+      });
+    }
+
+    // =====================================================
+    // Filtros y Búsqueda
+    // =====================================================
+
+    function initFilters() {
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          state.filtroActual = btn.dataset.filter;
+          renderCards();
+        });
+      });
+
+      document.getElementById('search-input').addEventListener('input', (e) => {
+        state.busqueda = e.target.value;
+        renderCards();
+      });
+    }
+
+    // =====================================================
+    // Event Listeners Modales
+    // =====================================================
+
+    function initModals() {
+      // Modal Formulario
+      document.getElementById('btn-nuevo-itinerario').addEventListener('click', abrirFormNuevo);
+      document.getElementById('btn-empty-nuevo').addEventListener('click', abrirFormNuevo);
+      document.getElementById('modal-form-close').addEventListener('click', () => cerrarModal('modal-form'));
+      document.getElementById('btn-form-cancelar').addEventListener('click', () => cerrarModal('modal-form'));
+      document.getElementById('btn-form-guardar').addEventListener('click', handleGuardar);
+
+      // Modal Detalle
+      document.getElementById('modal-detail-close').addEventListener('click', () => cerrarModal('modal-detail'));
+      document.getElementById('btn-detail-close-ok').addEventListener('click', () => cerrarModal('modal-detail'));
+
+      // Modal Confirmar
+      document.getElementById('btn-confirm-cancelar').addEventListener('click', () => cerrarModal('modal-confirm'));
+      document.getElementById('btn-confirm-eliminar').addEventListener('click', handleEliminar);
+
+      // Cerrar modales con backdrop
+      ['modal-form', 'modal-detail', 'modal-confirm'].forEach(id => {
+        document.getElementById(id).addEventListener('click', (e) => {
+          if (e.target === e.currentTarget) cerrarModal(id);
+        });
+      });
+
+      // Cerrar con ESC
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          ['modal-confirm', 'modal-detail', 'modal-form'].forEach(id => {
+            cerrarModal(id);
+          });
+        }
+      });
+    }
+
+    // =====================================================
+    // Init
+    // =====================================================
+
+    function init() {
+      cargarItinerarios();
+      initMobileMenu();
+      initFilters();
+      initModals();
+      render();
+      console.log('✅ Página de itinerarios iniciada');
+    }
+
+    init();
+  </script>
+
+</body>
+</html>

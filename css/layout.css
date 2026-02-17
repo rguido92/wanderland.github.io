@@ -20,7 +20,7 @@ body {
   border-bottom: 1px solid var(--border);
   position: sticky;
   top: 0;
-  z-index: var(--z-sticky);
+  z-index: auto; /* remove fixed stacking context so mobile nav can layer above overlay */
   height: var(--header-height);
 }
 
@@ -70,7 +70,7 @@ body {
   padding: var(--space-8) var(--space-6);
   box-shadow: var(--shadow-2xl);
   transition: left var(--transition-base);
-  z-index: var(--z-modal);
+  z-index: 9999; /* ensure nav always stacks above overlays */
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -94,7 +94,7 @@ body {
   opacity: 0;
   pointer-events: none;
   transition: opacity var(--transition-base);
-  z-index: calc(var(--z-modal) - 1);
+  z-index: var(--z-modal);
 }
 
 .nav-overlay.active {
@@ -232,7 +232,6 @@ body {
   height: 100%;
   object-fit: cover;
   z-index: -1;
-  opacity: 0.3;
   mask-image: linear-gradient(to bottom, rgba(6, 24, 42, 1) 5%, rgba(6, 24, 42, 0) 80%);
   -webkit-mask-image: linear-gradient(to bottom, rgba(6, 24, 42, 1) 5%, rgba(6, 24, 42, 0) 80%);
 }

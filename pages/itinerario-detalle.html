@@ -1,0 +1,2949 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Detalle Itinerario - Wanderlust</title>
+  <link rel="stylesheet" href="../css/reset.css">
+  <link rel="stylesheet" href="../css/variables.css">
+  <link rel="stylesheet" href="../css/layout.css">
+  <link rel="stylesheet" href="../css/components.css">
+  <style>
+    /* =====================================================
+       Layout Principal - 3 columnas
+       ===================================================== */
+    .detail-layout {
+      display: grid;
+      grid-template-columns: 1fr;
+      min-height: calc(100vh - var(--header-height));
+    }
+
+    @media (min-width: 1024px) {
+      .detail-layout {
+        grid-template-columns: 300px 1fr 300px;
+      }
+    }
+
+    /* =====================================================
+       Header del Itinerario
+       ===================================================== */
+    .itinerary-header {
+      background: linear-gradient(135deg, var(--background) 0%, var(--background-light) 100%);
+      border-bottom: 1px solid var(--border);
+      padding: var(--space-5) var(--space-4);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-4);
+      flex-wrap: wrap;
+    }
+
+    .itinerary-header-left {
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+    }
+
+    .back-btn {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      color: var(--text-muted);
+      font-size: var(--text-sm);
+      transition: color var(--transition-fast);
+      padding: var(--space-2) var(--space-3);
+      border-radius: var(--radius-md);
+    }
+
+    .back-btn:hover {
+      color: var(--primary);
+      background: rgba(59, 130, 246, 0.08);
+    }
+
+    .back-btn svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .itinerary-title-block h1 {
+      font-size: var(--text-xl);
+      font-weight: var(--font-bold);
+      color: var(--text-primary);
+      line-height: 1.2;
+    }
+
+    .itinerary-title-block p {
+      font-size: var(--text-sm);
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: var(--space-2);
+    }
+
+    /* =====================================================
+       Columna Izquierda - Timeline
+       ===================================================== */
+    .col-left {
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      max-height: calc(100vh - var(--header-height) - 80px);
+      overflow: hidden;
+    }
+
+    @media (max-width: 1023px) {
+      .col-left {
+        max-height: none;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+      }
+    }
+
+    .col-section-header {
+      padding: var(--space-4) var(--space-4) var(--space-3);
+      border-bottom: 1px solid var(--border-light);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    .col-section-title {
+      font-size: var(--text-sm);
+      font-weight: var(--font-semibold);
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* Day Tabs */
+    .day-tabs {
+      display: flex;
+      gap: var(--space-2);
+      padding: var(--space-3) var(--space-4);
+      overflow-x: auto;
+      flex-shrink: 0;
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .day-tab {
+      padding: var(--space-2) var(--space-4);
+      border-radius: var(--radius-full);
+      font-size: var(--text-sm);
+      font-weight: var(--font-medium);
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-secondary);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all var(--transition-fast);
+      flex-shrink: 0;
+    }
+
+    .day-tab:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .day-tab.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: white;
+    }
+
+    /* Timeline */
+    .timeline-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: var(--space-4);
+    }
+
+    .timeline-date {
+      font-size: var(--text-xs);
+      font-weight: var(--font-semibold);
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: var(--space-4);
+    }
+
+    .timeline-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .timeline-item {
+      display: flex;
+      gap: var(--space-3);
+      position: relative;
+    }
+
+    /* Línea vertical conectora */
+    .timeline-item:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      left: 11px;
+      top: 28px;
+      bottom: -16px;
+      width: 2px;
+      background: var(--border);
+    }
+
+    .timeline-dot {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: var(--font-bold);
+      color: white;
+      margin-top: 2px;
+      z-index: 1;
+    }
+
+    .dot-sightseeing {
+      background: var(--primary);
+    }
+
+    .dot-food {
+      background: #f59e0b;
+    }
+
+    .dot-transport {
+      background: #10b981;
+    }
+
+    .dot-hotel {
+      background: #8b5cf6;
+    }
+
+    .dot-activity {
+      background: #ec4899;
+    }
+
+    .timeline-content {
+      flex: 1;
+      margin-bottom: var(--space-4);
+    }
+
+    .timeline-card {
+      background: var(--surface);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-lg);
+      padding: var(--space-3) var(--space-4);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .timeline-card:hover,
+    .timeline-card.active {
+      border-color: var(--primary);
+      background: rgba(59, 130, 246, 0.05);
+    }
+
+    .timeline-card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: var(--space-2);
+    }
+
+    .timeline-time {
+      font-size: var(--text-xs);
+      color: var(--text-muted);
+      font-weight: var(--font-medium);
+      flex-shrink: 0;
+    }
+
+    .timeline-name {
+      font-size: var(--text-sm);
+      font-weight: var(--font-semibold);
+      color: var(--text-primary);
+      margin-bottom: 2px;
+    }
+
+    .timeline-meta {
+      font-size: var(--text-xs);
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: var(--space-1);
+    }
+
+    .timeline-card-actions {
+      display: flex;
+      gap: 2px;
+      opacity: 0;
+      transition: opacity var(--transition-fast);
+    }
+
+    .timeline-card:hover .timeline-card-actions {
+      opacity: 1;
+    }
+
+    .timeline-action {
+      width: 24px;
+      height: 24px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      transition: all var(--transition-fast);
+    }
+
+    .timeline-action:hover {
+      background: var(--surface-hover);
+      color: var(--text-primary);
+    }
+
+    .timeline-action.del:hover {
+      background: rgba(239, 68, 68, 0.1);
+      color: var(--error);
+    }
+
+    .timeline-action svg {
+      width: 13px;
+      height: 13px;
+    }
+
+    /* Transport connector */
+    .transport-connector {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: var(--space-2) 0 var(--space-2) var(--space-8);
+      margin-bottom: var(--space-1);
+    }
+
+    .transport-line {
+      width: 2px;
+      height: 20px;
+      border-radius: 1px;
+      flex-shrink: 0;
+    }
+
+    .transport-line.walk {
+      background: #10b981;
+    }
+
+    .transport-line.bus {
+      background: #ef4444;
+    }
+
+    .transport-line.taxi {
+      background: #f59e0b;
+    }
+
+    .transport-info {
+      font-size: var(--text-xs);
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: var(--space-1);
+    }
+
+    .transport-info svg {
+      width: 12px;
+      height: 12px;
+    }
+
+    /* Add activity btn */
+    .add-activity-btn {
+      width: 100%;
+      padding: var(--space-3);
+      border: 2px dashed var(--border);
+      border-radius: var(--radius-lg);
+      color: var(--text-muted);
+      font-size: var(--text-sm);
+      font-weight: var(--font-medium);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      margin-top: var(--space-2);
+    }
+
+    .add-activity-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: rgba(59, 130, 246, 0.05);
+    }
+
+    .add-activity-btn svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    /* =====================================================
+       Columna Central - Mapa + Detalle
+       ===================================================== */
+    .col-center {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Mapa simulado */
+    .map-container {
+      position: relative;
+      height: 340px;
+      background: #0f2439;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    @media (min-width: 768px) {
+      .map-container {
+        height: 420px;
+      }
+    }
+
+    .map-bg {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      background:
+        radial-gradient(ellipse at 30% 40%, rgba(59, 130, 246, 0.06) 0%, transparent 60%),
+        radial-gradient(ellipse at 70% 70%, rgba(16, 185, 129, 0.04) 0%, transparent 50%),
+        #0a1929;
+    }
+
+    /* Grid de calles simuladas */
+    .map-bg::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+
+    /* Ruta SVG en el mapa */
+    .map-svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Pins del mapa */
+    .map-pin {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      z-index: 10;
+      cursor: pointer;
+    }
+
+    .map-pin-dot {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--text-xs);
+      font-weight: var(--font-bold);
+      color: white;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+      border: 2px solid white;
+      transition: transform var(--transition-fast);
+      position: relative;
+    }
+
+    .map-pin:hover .map-pin-dot {
+      transform: scale(1.15);
+    }
+
+    .map-pin-dot::after {
+      content: '';
+      position: absolute;
+      bottom: -6px;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 5px solid transparent;
+      border-top-color: inherit;
+    }
+
+    .pin-1 .map-pin-dot {
+      background: var(--primary);
+      border-top-color: var(--primary);
+    }
+
+    .pin-2 .map-pin-dot {
+      background: #10b981;
+      border-top-color: #10b981;
+    }
+
+    .pin-3 .map-pin-dot {
+      background: #f59e0b;
+      border-top-color: #f59e0b;
+    }
+
+    .pin-4 .map-pin-dot {
+      background: #ec4899;
+      border-top-color: #ec4899;
+    }
+
+    .map-controls {
+      position: absolute;
+      top: var(--space-4);
+      right: var(--space-4);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-1);
+      z-index: 20;
+    }
+
+    .map-control-btn {
+      width: 36px;
+      height: 36px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--text-primary);
+      font-size: var(--text-base);
+      font-weight: var(--font-bold);
+      transition: background var(--transition-fast);
+    }
+
+    .map-control-btn:hover {
+      background: var(--surface-hover);
+    }
+
+    /* Popup del mapa */
+    .map-popup {
+      position: absolute;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      padding: 0;
+      min-width: 220px;
+      max-width: 260px;
+      box-shadow: var(--shadow-2xl);
+      z-index: 30;
+      overflow: hidden;
+      display: none;
+    }
+
+    .map-popup.visible {
+      display: block;
+    }
+
+    .popup-img {
+      width: 100%;
+      height: 100px;
+      object-fit: cover;
+      background: linear-gradient(135deg, var(--primary-dark), var(--background-light));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--text-3xl);
+    }
+
+    .popup-body {
+      padding: var(--space-3);
+    }
+
+    .popup-name {
+      font-size: var(--text-sm);
+      font-weight: var(--font-bold);
+      color: var(--text-primary);
+      margin-bottom: var(--space-1);
+    }
+
+    .popup-meta {
+      display: flex;
+      gap: var(--space-4);
+      margin-bottom: var(--space-3);
+    }
+
+    .popup-meta-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .popup-meta-label {
+      font-size: 10px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    .popup-meta-value {
+      font-size: var(--text-xs);
+      font-weight: var(--font-semibold);
+      color: var(--text-primary);
+    }
+
+    .popup-btn {
+      width: 100%;
+      padding: var(--space-2) var(--space-3);
+      background: var(--primary);
+      color: white;
+      border-radius: var(--radius-md);
+      font-size: var(--text-xs);
+      font-weight: var(--font-semibold);
+      text-align: center;
+      cursor: pointer;
+      transition: background var(--transition-fast);
+    }
+
+    .popup-btn:hover {
+      background: var(--primary-dark);
+    }
+
+    /* Timeline barra inferior */
+    .timeline-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(15, 36, 57, 0.95);
+      backdrop-filter: blur(8px);
+      border-top: 1px solid var(--border);
+      padding: var(--space-3) var(--space-4);
+    }
+
+    .timeline-bar-track {
+      position: relative;
+      height: 4px;
+      background: var(--border);
+      border-radius: var(--radius-full);
+      margin-bottom: var(--space-2);
+    }
+
+    .timeline-bar-progress {
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      background: var(--primary);
+      border-radius: var(--radius-full);
+      width: 40%;
+      transition: width 0.5s var(--ease-out);
+    }
+
+    .timeline-bar-thumb {
+      position: absolute;
+      top: 50%;
+      left: 40%;
+      transform: translate(-50%, -50%);
+      width: 14px;
+      height: 14px;
+      background: white;
+      border-radius: 50%;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+      border: 2px solid var(--primary);
+    }
+
+    .timeline-bar-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+
+    /* Detalle de actividad seleccionada */
+    .activity-detail {
+      flex: 1;
+      overflow-y: auto;
+      padding: var(--space-5) var(--space-4);
+    }
+
+    .activity-detail-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: var(--space-4);
+      margin-bottom: var(--space-5);
+    }
+
+    .activity-detail-title {
+      font-size: var(--text-2xl);
+      font-weight: var(--font-bold);
+      color: var(--text-primary);
+    }
+
+    .activity-detail-subtitle {
+      font-size: var(--text-sm);
+      color: var(--text-muted);
+      margin-top: var(--space-1);
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .activity-detail-subtitle svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .activity-info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-3);
+      margin-bottom: var(--space-5);
+    }
+
+    .activity-info-card {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      padding: var(--space-4);
+      border: 1px solid var(--border-light);
+    }
+
+    .activity-info-label {
+      font-size: var(--text-xs);
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: var(--space-1);
+      display: flex;
+      align-items: center;
+      gap: var(--space-1);
+    }
+
+    .activity-info-label svg {
+      width: 12px;
+      height: 12px;
+    }
+
+    .activity-info-value {
+      font-size: var(--text-base);
+      font-weight: var(--font-semibold);
+      color: var(--text-primary);
+    }
+
+    .activity-notes {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      padding: var(--space-4);
+      border: 1px solid var(--border-light);
+      margin-bottom: var(--space-5);
+    }
+
+    .activity-notes-title {
+      font-size: var(--text-sm);
+      font-weight: var(--font-semibold);
+      color: var(--text-secondary);
+      margin-bottom: var(--space-3);
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .activity-notes-text {
+      font-size: var(--text-sm);
+      color: var(--text-muted);
+      line-height: 1.7;
+    }
+
+    /* Transporte */
+    .transport-options {
+      background: var(--surface);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-light);
+      overflow: hidden;
+      margin-bottom: var(--space-5);
+    }
+
+    .transport-header {
+      padding: var(--space-3) var(--space-4);
+      border-bottom: 1px solid var(--border-light);
+      font-size: var(--text-sm);
+      font-weight: var(--font-semibold);
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .transport-current-badge {
+      font-size: var(--text-xs);
+      padding: 2px 8px;
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border-radius: var(--radius-full);
+      font-weight: var(--font-medium);
+    }
+
+    .transport-option {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-3) var(--space-4);
+      border-bottom: 1px solid var(--border-light);
+      cursor: pointer;
+      transition: background var(--transition-fast);
+    }
+
+    .transport-option:last-child {
+      border-bottom: none;
+    }
+
+    .transport-option:hover {
+      background: rgba(59, 130, 246, 0.04);
+    }
+
+    .transport-option.selected {
+      background: rgba(59, 130, 246, 0.08);
+    }
+
+    .transport-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .transport-icon svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .ti-bus {
+      background: rgba(239, 68, 68, 0.1);
+      color: #ef4444;
+    }
+
+    .ti-taxi {
+      background: rgba(245, 158, 11, 0.1);
+      color: #f59e0b;
+    }
+
+    .ti-walk {
+      background: rgba(16, 185, 129, 0.1);
+      color: #10b981;
+    }
+
+    .transport-option-info {
+      flex: 1;
+    }
+
+    .transport-option-name {
+      font-size: var(--text-sm);
+      font-weight: var(--font-semibold);
+      color: var(--text-primary);
+    }
+
+    .transport-option-sub {
+      font-size: var(--text-xs);
+      color: var(--text-muted);
+    }
+
+    .transport-option-price {
+      font-size: var(--text-sm);
+      font-weight: var(--font-bold);
+      color: var(--text-primary);
+      text-align: right;
+    }
+
+    /* Placeholder vacío */
+    .empty-detail {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-16) var(--space-4);
+      text-align: center;
+      gap: var(--space-3);
+      color: var(--text-muted);
+    }
+
+    .empty-detail svg {
+      width: 40px;
+      height: 40px;
+      opacity: 0.4;
+    }
+
+    .empty-detail p {
+      font-size: var(--text-sm);
+    }
+
+    /* Navegación prev/next */
+    .activity-nav {
+      display: flex;
+      justify-content: space-between;
+      gap: var(--space-3);
+      padding-top: var(--space-4);
+      border-top: 1px solid var(--border-light);
+    }
+
+    .activity-nav-btn {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: var(--space-3) var(--space-4);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      font-size: var(--text-sm);
+      font-weight: var(--font-medium);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      background: transparent;
+    }
+
+    .activity-nav-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .activity-nav-btn svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .activity-nav-btn.next {
+      margin-left: auto;
+    }
+
+    /* =====================================================
+       Columna Derecha - Sidebar
+       ===================================================== */
+    .col-right {
+      border-left: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      overflow-y: auto;
+    }
+
+    @media (max-width: 1023px) {
+      .col-right {
+        border-left: none;
+        border-top: 1px solid var(--border);
+      }
+    }
+
+    .sidebar-section {
+      padding: var(--space-4);
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .sidebar-section:last-child {
+      border-bottom: none;
+    }
+
+    .sidebar-title {
+      font-size: var(--text-sm);
+      font-weight: var(--font-semibold);
+      color: var(--text-secondary);
+      margin-bottom: var(--space-4);
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .sidebar-title svg {
+      width: 16px;
+      height: 16px;
+      color: var(--primary);
+    }
+
+    /* Budget Tracker */
+    .budget-total {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: var(--space-3);
+    }
+
+    .budget-label {
+      font-size: var(--text-sm);
+      color: var(--text-muted);
+    }
+
+    .budget-amount {
+      font-size: var(--text-2xl);
+      font-weight: var(--font-bold);
+      color: var(--primary-light);
+    }
+
+    .budget-bar-bg {
+      height: 8px;
+      background: var(--surface-hover);
+      border-radius: var(--radius-full);
+      margin-bottom: var(--space-2);
+      overflow: hidden;
+    }
+
+    .budget-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--primary-light));
+      border-radius: var(--radius-full);
+      transition: width 0.5s var(--ease-out);
+    }
+
+    .budget-bar-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: var(--text-xs);
+      color: var(--text-muted);
+      margin-bottom: var(--space-4);
+    }
+
+    .expense-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+      margin-bottom: var(--space-3);
+    }
+
+    .expense-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+
+    .expense-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    .expense-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .expense-name {
+      font-size: var(--text-xs);
+      font-weight: var(--font-medium);
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .expense-date {
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+
+    .expense-amount {
+      font-size: var(--text-sm);
+      font-weight: var(--font-semibold);
+      color: var(--text-primary);
+      white-space: nowrap;
+    }
+
+    .add-expense-btn {
+      width: 100%;
+      padding: var(--space-2) var(--space-3);
+      border: 1px dashed var(--border);
+      border-radius: var(--radius-md);
+      color: var(--text-muted);
+      font-size: var(--text-xs);
+      font-weight: var(--font-medium);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      background: transparent;
+    }
+
+    .add-expense-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: rgba(59, 130, 246, 0.04);
+    }
+
+    .add-expense-btn svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    /* Checklist */
+    .checklist {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+    }
+
+    .checklist-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-2) var(--space-3);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: background var(--transition-fast);
+    }
+
+    .checklist-item:hover {
+      background: var(--surface-hover);
+    }
+
+    .checklist-checkbox {
+      width: 18px;
+      height: 18px;
+      border-radius: var(--radius-sm);
+      border: 2px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all var(--transition-fast);
+    }
+
+    .checklist-item.checked .checklist-checkbox {
+      background: var(--primary);
+      border-color: var(--primary);
+    }
+
+    .checklist-checkbox svg {
+      width: 11px;
+      height: 11px;
+      color: white;
+      display: none;
+    }
+
+    .checklist-item.checked .checklist-checkbox svg {
+      display: block;
+    }
+
+    .checklist-label {
+      font-size: var(--text-sm);
+      color: var(--text-primary);
+      flex: 1;
+      transition: all var(--transition-fast);
+    }
+
+    .checklist-item.checked .checklist-label {
+      color: var(--text-muted);
+      text-decoration: line-through;
+    }
+
+    .checklist-progress {
+      font-size: var(--text-xs);
+      color: var(--text-muted);
+      margin-left: auto;
+    }
+
+    /* Widget clima */
+    .weather-widget {
+      background: linear-gradient(135deg, #1d4ed8 0%, #0369a1 100%);
+      border-radius: var(--radius-xl);
+      padding: var(--space-4);
+      color: white;
+    }
+
+    .weather-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: var(--space-4);
+    }
+
+    .weather-location {
+      font-size: var(--text-xs);
+      opacity: 0.8;
+      margin-bottom: 2px;
+    }
+
+    .weather-temp {
+      font-size: var(--text-4xl);
+      font-weight: var(--font-bold);
+      line-height: 1;
+    }
+
+    .weather-desc {
+      font-size: var(--text-xs);
+      opacity: 0.8;
+      margin-top: 4px;
+    }
+
+    .weather-icon {
+      font-size: 2.5rem;
+    }
+
+    .weather-forecast {
+      display: flex;
+      justify-content: space-between;
+      gap: var(--space-2);
+    }
+
+    .weather-day {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .weather-day-name {
+      font-size: 10px;
+      opacity: 0.7;
+    }
+
+    .weather-day-icon {
+      font-size: 1rem;
+    }
+
+    .weather-day-temp {
+      font-size: var(--text-xs);
+      font-weight: var(--font-semibold);
+    }
+
+    /* =====================================================
+       Modales
+       ===================================================== */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(4px);
+      z-index: var(--z-modal-backdrop);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity var(--transition-base);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-4);
+    }
+
+    .modal-backdrop.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-2xl);
+      width: 100%;
+      max-width: 520px;
+      max-height: 90vh;
+      overflow-y: auto;
+      transform: scale(0.95) translateY(10px);
+      transition: transform var(--transition-base);
+      box-shadow: var(--shadow-2xl);
+    }
+
+    .modal-backdrop.active .modal {
+      transform: scale(1) translateY(0);
+    }
+
+    .modal-header {
+      padding: var(--space-5) var(--space-6);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-title {
+      font-size: var(--text-lg);
+      font-weight: var(--font-bold);
+      color: var(--text-primary);
+    }
+
+    .modal-close {
+      width: 34px;
+      height: 34px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      transition: all var(--transition-fast);
+    }
+
+    .modal-close:hover {
+      background: var(--surface-hover);
+      color: var(--text-primary);
+    }
+
+    .modal-close svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .modal-body {
+      padding: var(--space-5) var(--space-6);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-4);
+    }
+
+    .modal-footer {
+      padding: var(--space-4) var(--space-6);
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: flex-end;
+      gap: var(--space-3);
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-3);
+    }
+
+    .form-label {
+      font-size: var(--text-sm);
+      font-weight: var(--font-medium);
+      color: var(--text-secondary);
+    }
+
+    .form-label span {
+      color: var(--error);
+    }
+
+    .form-input,
+    .form-select,
+    .form-textarea {
+      background: var(--background-light);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      color: var(--text-primary);
+      padding: var(--space-3) var(--space-4);
+      font-size: var(--text-sm);
+      transition: border-color var(--transition-fast);
+      width: 100%;
+      min-height: 44px;
+      font-family: var(--font-family-base);
+    }
+
+    .form-input:focus,
+    .form-select:focus,
+    .form-textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .form-input::placeholder,
+    .form-textarea::placeholder {
+      color: var(--text-muted);
+    }
+
+    .form-select {
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right var(--space-3) center;
+      padding-right: var(--space-10);
+    }
+
+    .form-select option {
+      background: var(--surface);
+      color: var(--text-primary);
+    }
+
+    .form-textarea {
+      min-height: 90px;
+      resize: vertical;
+    }
+
+    /* Type selector */
+    .type-selector {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: var(--space-2);
+    }
+
+    .type-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: var(--space-2) var(--space-1);
+      border: 2px solid var(--border);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      background: transparent;
+    }
+
+    .type-btn:hover {
+      border-color: var(--primary);
+    }
+
+    .type-btn.active {
+      border-color: var(--primary);
+      background: rgba(59, 130, 246, 0.1);
+    }
+
+    .type-btn span:first-child {
+      font-size: 1.2rem;
+    }
+
+    .type-btn span:last-child {
+      font-size: 9px;
+      color: var(--text-muted);
+      font-weight: var(--font-medium);
+    }
+
+    /* Toast */
+    .toast-container {
+      position: fixed;
+      bottom: var(--space-6);
+      right: var(--space-4);
+      z-index: var(--z-notification);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+      pointer-events: none;
+    }
+
+    .toast {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-3) var(--space-4);
+      border-radius: var(--radius-lg);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-xl);
+      min-width: 260px;
+      animation: toastIn 0.2s ease forwards;
+      pointer-events: auto;
+    }
+
+    .toast.removing {
+      animation: toastOut 0.2s ease forwards;
+    }
+
+    .toast-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .toast-icon svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .toast.success .toast-icon {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--success);
+    }
+
+    .toast.info .toast-icon {
+      background: rgba(59, 130, 246, 0.15);
+      color: var(--primary);
+    }
+
+    .toast-message {
+      font-size: var(--text-sm);
+      color: var(--text-primary);
+      flex: 1;
+    }
+
+    @keyframes toastIn {
+      from {
+        opacity: 0;
+        transform: translateX(16px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes toastOut {
+      from {
+        opacity: 1;
+        transform: translateX(0);
+      }
+
+      to {
+        opacity: 0;
+        transform: translateX(16px);
+      }
+    }
+
+    /* =====================================================
+       Mobile: columnas se apilan
+       ===================================================== */
+    @media (max-width: 1023px) {
+      .col-left {
+        order: 1;
+      }
+
+      .col-center {
+        order: 2;
+      }
+
+      .col-right {
+        order: 3;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Header -->
+  <header class="main-header">
+    <div class="header-content">
+      <div class="logo">
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="10" r="3" />
+          <path d="M12 21.7C17.3 17 20 13 20 10a8 8 0 1 0-16 0c0 3 2.7 6.9 8 11.7z" />
+        </svg>
+        <h2>Wanderlust</h2>
+      </div>
+      <button class="mobile-menu-toggle" aria-label="Menú" id="mobile-menu-toggle">
+        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+      <nav class="main-nav" id="main-nav">
+        <a href="../index.html">Inicio</a>
+        <a href="destinos.html">Destinos</a>
+        <a href="itinerarios.html" aria-current="page">Itinerarios</a>
+        <a href="contacto.html">Contacto</a>
+      </nav>
+      <div class="header-actions hide-mobile">
+        <a href="login.html" class="btn-secondary">Iniciar sesión</a>
+      </div>
+    </div>
+  </header>
+  <div class="nav-overlay" id="nav-overlay"></div>
+
+  <!-- Sub-header del itinerario -->
+  <div class="itinerary-header">
+    <div class="itinerary-header-left">
+      <a href="itinerarios.html" class="back-btn">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M19 12H5M12 19l-7-7 7-7" />
+        </svg>
+        Volver
+      </a>
+      <div class="itinerary-title-block">
+        <h1 id="page-title">Cargando...</h1>
+        <p id="page-subtitle">–</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="btn-secondary" id="btn-editar-itinerario">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
+          <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
+        </svg>
+        Editar
+      </button>
+      <button class="btn-danger" id="btn-delete-itinerario" title="Eliminar itinerario">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M3 6h18M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" />
+          <path d="M10 11v6M14 11v6" />
+        </svg>
+        Eliminar
+      </button>
+    </div>
+  </div>
+
+  <!-- Layout 3 columnas -->
+  <div class="detail-layout">
+
+    <!-- =====================================================
+         COL IZQUIERDA: Timeline
+         ===================================================== -->
+    <div class="col-left">
+      <div class="col-section-header">
+        <span class="col-section-title">Itinerario</span>
+        <span id="activities-count" class="badge badge-primary">0 actividades</span>
+      </div>
+
+      <!-- Tabs de días -->
+      <div class="day-tabs" id="day-tabs"></div>
+
+      <!-- Timeline -->
+      <div class="timeline-scroll">
+        <p class="timeline-date" id="timeline-date">—</p>
+        <div class="timeline-list" id="timeline-list"></div>
+        <button class="add-activity-btn" id="btn-add-activity">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M12 5v14M5 12h14" />
+          </svg>
+          Añadir actividad
+        </button>
+      </div>
+    </div>
+
+    <!-- =====================================================
+         COL CENTRAL: Mapa + Detalle
+         ===================================================== -->
+    <div class="col-center">
+
+      <!-- Mapa simulado -->
+      <div class="map-container">
+        <div class="map-bg">
+          <!-- Ruta SVG -->
+          <svg class="map-svg" id="map-svg" viewBox="0 0 600 420" preserveAspectRatio="xMidYMid slice"></svg>
+
+          <!-- Pins dinámicos -->
+          <div id="map-pins"></div>
+
+          <!-- Popup -->
+          <div class="map-popup" id="map-popup">
+            <div class="popup-img" id="popup-emoji">🏛️</div>
+            <div class="popup-body">
+              <p class="popup-name" id="popup-name">Nombre</p>
+              <div class="popup-meta">
+                <div class="popup-meta-item">
+                  <span class="popup-meta-label">Duración</span>
+                  <span class="popup-meta-value" id="popup-duration">—</span>
+                </div>
+                <div class="popup-meta-item">
+                  <span class="popup-meta-label">Hora</span>
+                  <span class="popup-meta-value" id="popup-time">—</span>
+                </div>
+              </div>
+              <div class="popup-btn" id="popup-btn">Ver detalle</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Controles mapa -->
+        <div class="map-controls">
+          <button class="map-control-btn">+</button>
+          <button class="map-control-btn">−</button>
+        </div>
+
+        <!-- Barra de tiempo -->
+        <div class="timeline-bar">
+          <div class="timeline-bar-track">
+            <div class="timeline-bar-progress" id="bar-progress"></div>
+            <div class="timeline-bar-thumb" id="bar-thumb"></div>
+          </div>
+          <div class="timeline-bar-labels" id="bar-labels"></div>
+        </div>
+      </div>
+
+      <!-- Detalle de actividad seleccionada -->
+      <div class="activity-detail" id="activity-detail">
+        <div class="empty-detail" id="empty-detail">
+          <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <path d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+            <path d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+          </svg>
+          <p>Selecciona una actividad del timeline para ver su detalle</p>
+        </div>
+
+        <div id="activity-content" style="display:none;">
+          <div class="activity-detail-header">
+            <div>
+              <h2 class="activity-detail-title" id="detail-name">—</h2>
+              <div class="activity-detail-subtitle">
+                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" />
+                  <circle cx="12" cy="10" r="3" />
+                </svg>
+                <span id="detail-location">—</span>
+              </div>
+            </div>
+            <div class="card-actions">
+              <button class="card-action-btn" id="btn-detail-edit" title="Editar">
+                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
+                  style="width:16px;height:16px">
+                  <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
+                  <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
+                </svg>
+              </button>
+              <button class="card-action-btn delete" id="btn-detail-delete" title="Eliminar">
+                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
+                  style="width:16px;height:16px">
+                  <path d="M3 6h18M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6M10 11v6M14 11v6" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="activity-info-grid">
+            <div class="activity-info-card">
+              <div class="activity-info-label">
+                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="10" />
+                  <polyline points="12 6 12 12 16 14" />
+                </svg>
+                Hora
+              </div>
+              <div class="activity-info-value" id="detail-time">—</div>
+            </div>
+            <div class="activity-info-card">
+              <div class="activity-info-label">
+                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="10" />
+                  <polyline points="12 6 12 12 16 14" />
+                </svg>
+                Duración
+              </div>
+              <div class="activity-info-value" id="detail-duration">—</div>
+            </div>
+            <div class="activity-info-card">
+              <div class="activity-info-label">
+                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <line x1="12" y1="1" x2="12" y2="23" />
+                  <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" />
+                </svg>
+                Coste entrada
+              </div>
+              <div class="activity-info-value" id="detail-cost">Gratis</div>
+            </div>
+            <div class="activity-info-card">
+              <div class="activity-info-label">
+                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path
+                    d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
+                </svg>
+                Tipo
+              </div>
+              <div class="activity-info-value" id="detail-type">—</div>
+            </div>
+          </div>
+
+          <div class="activity-notes" id="detail-notes-container">
+            <div class="activity-notes-title">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
+                style="width:16px;height:16px">
+                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+                <polyline points="14 2 14 8 20 8" />
+              </svg>
+              Notas personales
+            </div>
+            <p class="activity-notes-text" id="detail-notes-text">—</p>
+          </div>
+
+          <!-- Transporte al siguiente -->
+          <div class="transport-options" id="transport-section">
+            <div class="transport-header">
+              <span>🚌 Transporte al siguiente punto</span>
+              <span class="transport-current-badge">Opciones</span>
+            </div>
+            <div id="transport-list"></div>
+          </div>
+
+          <!-- Navegación prev / next -->
+          <div class="activity-nav" id="activity-nav"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- =====================================================
+         COL DERECHA: Sidebar
+         ===================================================== -->
+    <div class="col-right">
+
+      <!-- Budget Tracker -->
+      <div class="sidebar-section">
+        <h3 class="sidebar-title">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <line x1="12" y1="1" x2="12" y2="23" />
+            <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" />
+          </svg>
+          Budget Tracker
+        </h3>
+
+        <div class="budget-total">
+          <span class="budget-label">Total gastado</span>
+          <span class="budget-amount" id="budget-spent">€0</span>
+        </div>
+
+        <div class="budget-bar-bg">
+          <div class="budget-bar-fill" id="budget-bar" style="width:0%"></div>
+        </div>
+
+        <div class="budget-bar-labels">
+          <span id="budget-spent-label">Gastado: €0</span>
+          <span id="budget-total-label">Presupuesto: €0</span>
+        </div>
+
+        <div class="expense-list" id="expense-list"></div>
+      </div>
+
+      <!-- Trip Essentials -->
+      <div class="sidebar-section">
+        <h3 class="sidebar-title">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          Trip Essentials
+          <span class="checklist-progress" id="checklist-progress">0/0</span>
+        </h3>
+        <div class="checklist" id="checklist"></div>
+      </div>
+
+      <!-- Clima -->
+      <div class="sidebar-section">
+        <h3 class="sidebar-title">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M17.5 19H9a7 7 0 110-14 7 7 0 0114 0v1" />
+            <path d="M17 19v-4a2 2 0 012-2" />
+          </svg>
+          Clima
+        </h3>
+        <div class="weather-widget">
+          <div class="weather-top">
+            <div>
+              <p class="weather-location" id="weather-location">—</p>
+              <p class="weather-temp" id="weather-temp">—°C</p>
+              <p class="weather-desc" id="weather-desc">—</p>
+            </div>
+            <div class="weather-icon" id="weather-icon">☀️</div>
+          </div>
+          <div class="weather-forecast" id="weather-forecast"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MODAL: Editar Itinerario -->
+  <div class="modal-backdrop" id="modal-itinerario" role="dialog" aria-modal="true">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modal-itinerario-title">Editar Itinerario</h2>
+        <button class="modal-close" id="modal-itinerario-close">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M18 6L6 18M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label" for="it-name">Nombre del itinerario</label>
+          <input id="it-name" class="form-input" type="text" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="it-destination">Destino</label>
+          <input id="it-destination" class="form-input" type="text" />
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="it-start">Fecha inicio</label>
+            <input id="it-start" class="form-input" type="date" />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="it-end">Fecha fin</label>
+            <input id="it-end" class="form-input" type="date" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="it-state">Estado</label>
+            <select id="it-state" class="form-select">
+              <option value="planificando">Planificando</option>
+              <option value="confirmado">Confirmado</option>
+              <option value="completado">Completado</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="it-budget">Presupuesto (€)</label>
+            <input id="it-budget" class="form-input" type="number" min="0" step="1" />
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" id="modal-itinerario-cancel">Cancelar</button>
+        <button class="btn-primary" id="modal-itinerario-save">Guardar cambios</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =====================================================
+       MODAL: Añadir / Editar Actividad
+       ===================================================== -->
+  <div class="modal-backdrop" id="modal-activity" role="dialog" aria-modal="true">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modal-activity-title">Nueva Actividad</h2>
+        <button class="modal-close" id="modal-activity-close">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M18 6L6 18M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+
+        <!-- Tipo de actividad -->
+        <div class="form-group">
+          <label class="form-label">Tipo de actividad</label>
+          <div class="type-selector" id="type-selector">
+            <button class="type-btn active" data-type="sightseeing"><span>🏛️</span><span>Turismo</span></button>
+            <button class="type-btn" data-type="food"><span>🍽️</span><span>Comida</span></button>
+            <button class="type-btn" data-type="transport"><span>🚌</span><span>Transporte</span></button>
+            <button class="type-btn" data-type="hotel"><span>🏨</span><span>Hotel</span></button>
+            <button class="type-btn" data-type="activity"><span>🎯</span><span>Actividad</span></button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="act-name">Nombre <span>*</span></label>
+          <input type="text" id="act-name" class="form-input" placeholder="Ej: Kinkaku-ji Temple">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="act-location">Ubicación</label>
+          <input type="text" id="act-location" class="form-input" placeholder="Ej: Kita Ward, Kyoto">
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="act-time">Hora <span>*</span></label>
+            <input type="time" id="act-time" class="form-input">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="act-duration">Duración</label>
+            <select id="act-duration" class="form-select">
+              <option value="30m">30 minutos</option>
+              <option value="1h">1 hora</option>
+              <option value="1h30m" selected>1h 30min</option>
+              <option value="2h">2 horas</option>
+              <option value="3h">3 horas</option>
+              <option value="4h">4 horas</option>
+              <option value="Día completo">Día completo</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="act-cost">Coste por persona (usar 0 si es gratis)</label>
+          <input type="number" id="act-cost" class="form-input" placeholder="0.00" step="0.01" min="0">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="act-notes">Notas personales</label>
+          <textarea id="act-notes" class="form-textarea" placeholder="Consejos, recordatorios, reservas..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" id="modal-activity-cancel">Cancelar</button>
+        <button class="btn-primary" id="modal-activity-save">Guardar actividad</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- expense modal removed: expenses are created/updated when adding/editing activities -->
+
+  <!-- Toast -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <script type="module">
+    import {
+      CONFIG
+    } from '../js/config.js';
+    import {
+      setStorage,
+      getStorage,
+      sanitize
+    } from '../js/utils.js';
+
+    // =====================================================
+    // Helpers
+    // =====================================================
+    const $ = id => document.getElementById(id);
+    const STORAGE_KEY = CONFIG.STORAGE_KEYS.SAVED_ITINERARIES;
+
+    // =====================================================
+    // Leer ID del itinerario desde URL
+    // =====================================================
+    const params = new URLSearchParams(window.location.search);
+    const itinerarioId = params.get('id');
+
+    // =====================================================
+    // Estado
+    // =====================================================
+    const state = {
+      itinerario: null,
+      currentDay: 0,
+      selectedActivityId: null,
+      editingActivityId: null,
+      editingExpenseId: null,
+      selectedType: 'sightseeing',
+    };
+
+    // =====================================================
+    // Emojis y colores por tipo
+    // =====================================================
+    const TYPE_CONFIG = {
+      sightseeing: {
+        emoji: '🏛️',
+        label: 'Turismo',
+        dotClass: 'dot-sightseeing'
+      },
+      food: {
+        emoji: '🍽️',
+        label: 'Restaurante',
+        dotClass: 'dot-food'
+      },
+      transport: {
+        emoji: '🚌',
+        label: 'Transporte',
+        dotClass: 'dot-transport'
+      },
+      hotel: {
+        emoji: '🏨',
+        label: 'Hotel',
+        dotClass: 'dot-hotel'
+      },
+      activity: {
+        emoji: '🎯',
+        label: 'Actividad',
+        dotClass: 'dot-activity'
+      },
+    };
+
+    const TRANSPORT_OPTIONS = [{
+        icon: '🚇',
+        type: 'bus',
+        name: 'Metro / Bus',
+        sub: '24 min · Cada 4 min',
+        price: '€2.20',
+        class: 'ti-bus'
+      },
+      {
+        icon: '🚕',
+        type: 'taxi',
+        name: 'Uber / Taxi',
+        sub: '18 min · Tráfico alto',
+        price: '€12.00',
+        class: 'ti-taxi'
+      },
+      {
+        icon: '🚶',
+        type: 'walk',
+        name: 'A pie',
+        sub: '55 min · 4.2 km',
+        price: 'Gratis',
+        class: 'ti-walk'
+      },
+    ];
+
+    const WEATHER_DATA = {
+      icon: '☀️',
+      temp: 24,
+      desc: 'Soleado y despejado',
+      forecast: [{
+          day: 'Mar',
+          icon: '☀️',
+          temp: 24
+        },
+        {
+          day: 'Mié',
+          icon: '⛅',
+          temp: 22
+        },
+        {
+          day: 'Jue',
+          icon: '🌤️',
+          temp: 26
+        },
+        {
+          day: 'Vie',
+          icon: '☀️',
+          temp: 25
+        },
+      ]
+    };
+
+    const CHECKLIST_ITEMS = [
+      'Pasaporte y Visado',
+      'Seguro de viaje',
+      'Mapas sin conexión',
+      'Cambio de moneda',
+      'Adaptador de corriente',
+      'Reservas confirmadas',
+    ];
+
+    // =====================================================
+    // Cargar / guardar itinerario
+    // =====================================================
+    function cargarItinerario() {
+      const todos = getStorage(STORAGE_KEY, []);
+      state.itinerario = todos.find(it => it.id === itinerarioId) || null;
+
+      if (!state.itinerario) {
+        // Demo si no hay id
+        state.itinerario = {
+          id: 'demo',
+          nombre: 'Viaje a Kyoto',
+          destino: 'Kyoto, Japón',
+          fechaInicio: '2024-08-12',
+          fechaFin: '2024-08-19',
+          estado: 'confirmado',
+          days: [],
+          expenses: [],
+          checklist: CHECKLIST_ITEMS.map((label, i) => ({
+            label,
+            checked: i < 3
+          })),
+          budget: 3000,
+        };
+      }
+
+      // Inicializar arrays si no existen
+      if (!state.itinerario.days) state.itinerario.days = [];
+      if (!state.itinerario.expenses) state.itinerario.expenses = [];
+      if (!state.itinerario.checklist) {
+        state.itinerario.checklist = CHECKLIST_ITEMS.map(label => ({
+          label,
+          checked: false
+        }));
+      }
+      if (!state.itinerario.budget) state.itinerario.budget = 1500;
+
+      // Generar días según fechas
+      ensureDays();
+    }
+    // =====================================================
+    // CRUD Itinerario (editar nombre, destino, fechas)
+    // =====================================================
+
+    function openEditItinerario(id) {
+      const it = state.itinerario;
+      if (!it) return;
+      // poblar formulario
+      $('it-name').value = it.nombre || '';
+      $('it-destination').value = it.destino || '';
+      $('it-start').value = it.fechaInicio || '';
+      $('it-end').value = it.fechaFin || '';
+      $('it-state').value = it.estado || 'planificando';
+      $('it-budget').value = it.budget || '';
+
+      openModal('modal-itinerario');
+    }
+
+    function saveItinerario() {
+      const it = state.itinerario;
+      if (!it) return;
+      const nombre = $('it-name').value.trim();
+      const destino = $('it-destination').value.trim();
+      const fechaInicio = $('it-start').value;
+      const fechaFin = $('it-end').value;
+      const estado = $('it-state').value;
+      const budget = parseFloat($('it-budget').value) || it.budget || 0;
+
+      if (!nombre || !destino || !fechaInicio || !fechaFin) {
+        showToast('Completa nombre, destino y fechas', 'info');
+        return;
+      }
+
+      it.nombre = nombre;
+      it.destino = destino;
+      it.fechaInicio = fechaInicio;
+      it.fechaFin = fechaFin;
+      it.estado = estado;
+      it.budget = budget;
+
+      ensureDays();
+      guardarItinerario();
+      closeModal('modal-itinerario');
+      renderHeader();
+      renderAll();
+      showToast('Itinerario guardado', 'success');
+    }
+
+    function deleteItinerario() {
+      if (!state.itinerario) return;
+      if (state.itinerario.id === 'demo') {
+        showToast('No se puede eliminar el itinerario demo', 'info');
+        return;
+      }
+      if (!confirm(`¿Eliminar itinerario "${state.itinerario.nombre}"? Esta acción no se puede deshacer.`)) return;
+
+      let todos = getStorage(STORAGE_KEY, []);
+      todos = todos.filter(it => it.id !== state.itinerario.id);
+      setStorage(STORAGE_KEY, todos);
+      showToast('Itinerario eliminado', 'info');
+      // redirigir a lista de itinerarios
+      window.location.href = 'itinerarios.html';
+    }
+
+    function ensureDays() {
+      const it = state.itinerario;
+      const start = new Date(it.fechaInicio);
+      const end = new Date(it.fechaFin);
+      const numDays = Math.max(1, Math.ceil((end - start) / 86400000) + 1);
+
+      while (it.days.length < numDays) {
+        const d = new Date(start);
+        d.setDate(d.getDate() + it.days.length);
+        it.days.push({
+          date: d.toISOString().split('T')[0],
+          activities: []
+        });
+      }
+    }
+
+    function guardarItinerario() {
+      if (state.itinerario.id === 'demo') return;
+      let todos = getStorage(STORAGE_KEY, []);
+      const idx = todos.findIndex(it => it.id === state.itinerario.id);
+      if (idx !== -1) todos[idx] = state.itinerario;
+      else todos.unshift(state.itinerario);
+      setStorage(STORAGE_KEY, todos);
+    }
+
+    // =====================================================
+    // Render Header
+    // =====================================================
+    function renderHeader() {
+      const it = state.itinerario;
+      $('page-title').textContent = `${it.destino} – ${it.nombre}`;
+
+      const formatFecha = f => {
+        const [y, m, d] = f.split('-');
+        return `${d}/${m}/${y}`;
+      };
+
+      $('page-subtitle').textContent =
+        `${formatFecha(it.fechaInicio)} → ${formatFecha(it.fechaFin)}`;
+    }
+
+    // =====================================================
+    // Render Day Tabs
+    // =====================================================
+    function renderDayTabs() {
+      const container = $('day-tabs');
+      container.innerHTML = state.itinerario.days.map((day, i) => `
+        <button class="day-tab ${i === state.currentDay ? 'active' : ''}" data-day="${i}">
+          Día ${i + 1}
+        </button>
+      `).join('');
+
+      container.querySelectorAll('.day-tab').forEach(btn => {
+        btn.addEventListener('click', () => {
+          state.currentDay = parseInt(btn.dataset.day);
+          state.selectedActivityId = null;
+          renderAll();
+        });
+      });
+    }
+
+    // =====================================================
+    // Render Timeline
+    // =====================================================
+    function renderTimeline() {
+      const day = state.itinerario.days[state.currentDay];
+      if (!day) return;
+
+      const acts = [...day.activities].sort((a, b) => a.time.localeCompare(b.time));
+
+      const formatDate = dateStr => {
+        const d = new Date(dateStr + 'T00:00:00');
+        return d.toLocaleDateString('es-ES', {
+          weekday: 'long',
+          day: 'numeric',
+          month: 'long'
+        });
+      };
+
+      $('timeline-date').textContent = formatDate(day.date);
+      $('activities-count').textContent = `${acts.length} actividad${acts.length !== 1 ? 'es' : ''}`;
+
+      if (acts.length === 0) {
+        $('timeline-list').innerHTML = `
+          <div style="text-align:center;padding:var(--space-8) var(--space-4);color:var(--text-muted);font-size:var(--text-sm);">
+            <p>Sin actividades este día</p>
+            <p style="margin-top:var(--space-2);font-size:var(--text-xs);">Añade tu primera actividad</p>
+          </div>
+        `;
+        return;
+      }
+
+      $('timeline-list').innerHTML = acts.map((act, idx) => {
+        const tc = TYPE_CONFIG[act.type] || TYPE_CONFIG.sightseeing;
+        const isActive = act.id === state.selectedActivityId;
+        const isLast = idx === acts.length - 1;
+
+        const transportHTML = !isLast ? `
+          <div class="transport-connector">
+            <div class="transport-line walk"></div>
+            <div class="transport-info">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 4v7h5l-7 9-7-9h5V4h4z"/></svg>
+              ~15 min
+            </div>
+          </div>
+        ` : '';
+
+        return `
+          <div class="timeline-item">
+            <div class="timeline-dot ${tc.dotClass}">${idx + 1}</div>
+            <div class="timeline-content">
+              <div class="timeline-card ${isActive ? 'active' : ''}" data-id="${act.id}">
+                <div class="timeline-card-top">
+                  <div>
+                    <div class="timeline-name">${sanitize(act.name)}</div>
+                    <div class="timeline-meta">${tc.emoji} ${tc.label} · ${act.duration}</div>
+                  </div>
+                  <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+                    <span class="timeline-time">${act.time}</span>
+                    <div class="timeline-card-actions">
+                      <button class="timeline-action" data-action="edit" data-id="${act.id}" title="Editar">
+                        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                      </button>
+                      <button class="timeline-action del" data-action="delete" data-id="${act.id}" title="Eliminar">
+                        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 6h18M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              ${transportHTML}
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      // Eventos
+      $('timeline-list').querySelectorAll('.timeline-card').forEach(card => {
+        card.addEventListener('click', () => selectActivity(card.dataset.id));
+      });
+
+      $('timeline-list').querySelectorAll('[data-action]').forEach(btn => {
+        btn.addEventListener('click', e => {
+          e.stopPropagation();
+          const {
+            action,
+            id
+          } = btn.dataset;
+          if (action === 'edit') openEditActivity(id);
+          if (action === 'delete') deleteActivity(id);
+        });
+      });
+
+      renderTimelineBar(acts);
+    }
+
+    // =====================================================
+    // Barra de tiempo inferior del mapa
+    // =====================================================
+    function renderTimelineBar(acts) {
+      if (!acts.length) {
+        $('bar-labels').innerHTML = '';
+        return;
+      }
+
+      const labels = ['08:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00'];
+      $('bar-labels').innerHTML = labels.map(l => `<span>${l}</span>`).join('');
+
+      const selected = acts.find(a => a.id === state.selectedActivityId);
+      const progress = selected ?
+        Math.min(100, Math.max(0, (parseInt(selected.time) - 8) / 14 * 100)) :
+        30;
+
+      $('bar-progress').style.width = progress + '%';
+      $('bar-thumb').style.left = progress + '%';
+    }
+
+    // =====================================================
+    // Render Mapa Simulado
+    // =====================================================
+    function renderMap() {
+      const day = state.itinerario.days[state.currentDay];
+      if (!day) return;
+
+      const acts = [...day.activities].sort((a, b) => a.time.localeCompare(b.time));
+
+      // Posiciones predefinidas en el "mapa"
+      const positions = [{
+          x: 20,
+          y: 35
+        },
+        {
+          x: 55,
+          y: 25
+        },
+        {
+          x: 75,
+          y: 60
+        },
+        {
+          x: 40,
+          y: 75
+        },
+        {
+          x: 65,
+          y: 45
+        },
+        {
+          x: 30,
+          y: 55
+        },
+      ];
+
+      // Dibujar rutas SVG
+      const svg = $('map-svg');
+      svg.innerHTML = '';
+
+      if (acts.length > 1) {
+        for (let i = 0; i < Math.min(acts.length - 1, positions.length - 1); i++) {
+          const p1 = positions[i];
+          const p2 = positions[i + 1];
+          const x1 = p1.x * 6,
+            y1 = p1.y * 4.2;
+          const x2 = p2.x * 6,
+            y2 = p2.y * 4.2;
+          const mx = (x1 + x2) / 2,
+            my = (y1 + y2) / 2 - 40;
+
+          const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+          path.setAttribute('d', `M${x1},${y1} Q${mx},${my} ${x2},${y2}`);
+          path.setAttribute('fill', 'none');
+          path.setAttribute('stroke', 'rgba(59,130,246,0.5)');
+          path.setAttribute('stroke-width', '2');
+          path.setAttribute('stroke-dasharray', '8 4');
+          svg.appendChild(path);
+        }
+      }
+
+      // Pins
+      const pinsContainer = $('map-pins');
+      pinsContainer.innerHTML = acts.slice(0, 6).map((act, i) => {
+        const pos = positions[i] || positions[0];
+        const tc = TYPE_CONFIG[act.type] || TYPE_CONFIG.sightseeing;
+        const isActive = act.id === state.selectedActivityId;
+
+        return `
+          <div class="map-pin pin-${(i % 4) + 1}" data-id="${act.id}"
+               style="left:${pos.x}%;top:${pos.y}%;${isActive ? 'z-index:40' : ''}">
+            <div class="map-pin-dot" style="${isActive ? 'transform:scale(1.2)' : ''}">
+              ${i + 1}
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      pinsContainer.querySelectorAll('.map-pin').forEach(pin => {
+        pin.addEventListener('click', () => {
+          const act = acts.find(a => a.id === pin.dataset.id);
+          if (!act) return;
+          selectActivity(act.id);
+          showMapPopup(act, pin);
+        });
+      });
+
+      $('map-popup').classList.remove('visible');
+    }
+
+    function showMapPopup(act, pinEl) {
+      const tc = TYPE_CONFIG[act.type] || TYPE_CONFIG.sightseeing;
+      const popup = $('map-popup');
+
+      $('popup-emoji').textContent = tc.emoji;
+      $('popup-name').textContent = act.name;
+      $('popup-duration').textContent = act.duration;
+      $('popup-time').textContent = act.time;
+      $('popup-btn').onclick = () => selectActivity(act.id);
+
+      const rect = pinEl.getBoundingClientRect();
+      const mapRect = pinEl.closest('.map-container').getBoundingClientRect();
+
+      let left = rect.left - mapRect.left + 20;
+      let top = rect.top - mapRect.top - 180;
+      if (left + 260 > mapRect.width) left = left - 280;
+      if (top < 10) top = rect.top - mapRect.top + 40;
+
+      popup.style.left = left + 'px';
+      popup.style.top = top + 'px';
+      popup.classList.add('visible');
+    }
+
+    // =====================================================
+    // Seleccionar Actividad
+    // =====================================================
+    function selectActivity(id) {
+      const day = state.itinerario.days[state.currentDay];
+      const acts = [...day.activities].sort((a, b) => a.time.localeCompare(b.time));
+      const act = acts.find(a => a.id === id);
+      if (!act) return;
+
+      state.selectedActivityId = id;
+      renderTimeline();
+      renderMap();
+      renderActivityDetail(act, acts);
+    }
+
+    function renderActivityDetail(act, acts) {
+      const tc = TYPE_CONFIG[act.type] || TYPE_CONFIG.sightseeing;
+
+      $('empty-detail').style.display = 'none';
+      $('activity-content').style.display = 'block';
+
+      $('detail-name').textContent = act.name;
+      $('detail-location').textContent = act.location || 'Sin ubicación';
+      $('detail-time').textContent = act.time;
+      $('detail-duration').textContent = act.duration;
+      const costNum = parseFloat(act.cost);
+      $('detail-cost').textContent = (costNum && costNum > 0) ? `€${costNum.toFixed(2)}` : 'Gratis';
+      $('detail-type').textContent = `${tc.emoji} ${tc.label}`;
+
+      const notesContainer = $('detail-notes-container');
+      if (act.notes) {
+        notesContainer.style.display = 'block';
+        $('detail-notes-text').textContent = act.notes;
+      } else {
+        notesContainer.style.display = 'none';
+      }
+
+      // Transporte al siguiente
+      const idx = acts.findIndex(a => a.id === act.id);
+      const transportSection = $('transport-section');
+      if (idx < acts.length - 1) {
+        transportSection.style.display = 'block';
+        $('transport-list').innerHTML = TRANSPORT_OPTIONS.map((opt, i) => `
+          <div class="transport-option ${i === 0 ? 'selected' : ''}" data-transport="${opt.type}">
+            <div class="transport-icon ${opt.class}">${opt.icon}</div>
+            <div class="transport-option-info">
+              <div class="transport-option-name">${opt.name}</div>
+              <div class="transport-option-sub">${opt.sub}</div>
+            </div>
+            <div class="transport-option-price">${opt.price}</div>
+          </div>
+        `).join('');
+
+        $('transport-list').querySelectorAll('.transport-option').forEach(el => {
+          el.addEventListener('click', () => {
+            $('transport-list').querySelectorAll('.transport-option').forEach(e => e.classList.remove(
+              'selected'));
+            el.classList.add('selected');
+          });
+        });
+      } else {
+        transportSection.style.display = 'none';
+      }
+
+      // Acciones
+      $('btn-detail-edit').onclick = () => openEditActivity(act.id);
+      $('btn-detail-delete').onclick = () => {
+        deleteActivity(act.id);
+      };
+
+      // Navegación prev/next
+      const nav = $('activity-nav');
+      nav.innerHTML = '';
+
+      if (idx > 0) {
+        const prev = acts[idx - 1];
+        const prevBtn = document.createElement('button');
+        prevBtn.className = 'activity-nav-btn';
+        prevBtn.innerHTML = `
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          ${prev.name}
+        `;
+        prevBtn.addEventListener('click', () => selectActivity(prev.id));
+        nav.appendChild(prevBtn);
+      }
+
+      if (idx < acts.length - 1) {
+        const next = acts[idx + 1];
+        const nextBtn = document.createElement('button');
+        nextBtn.className = 'activity-nav-btn next';
+        nextBtn.innerHTML = `
+          ${next.name}
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        `;
+        nextBtn.addEventListener('click', () => selectActivity(next.id));
+        nav.appendChild(nextBtn);
+      }
+    }
+
+    // =====================================================
+    // CRUD Actividades
+    // =====================================================
+    function openAddActivity() {
+      state.editingActivityId = null;
+      $('modal-activity-title').textContent = 'Nueva Actividad';
+      $('modal-activity-save').textContent = 'Guardar actividad';
+      clearActivityForm();
+      openModal('modal-activity');
+    }
+
+    function openEditActivity(id) {
+      const day = state.itinerario.days[state.currentDay];
+      const act = day.activities.find(a => a.id === id);
+      if (!act) return;
+
+      state.editingActivityId = id;
+      $('modal-activity-title').textContent = 'Editar Actividad';
+      $('modal-activity-save').textContent = 'Guardar cambios';
+
+      $('act-name').value = act.name;
+      $('act-location').value = act.location || '';
+      $('act-time').value = act.time;
+      $('act-duration').value = act.duration;
+      $('act-cost').value = act.cost || '';
+      $('act-notes').value = act.notes || '';
+
+      state.selectedType = act.type;
+      document.querySelectorAll('.type-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.type === act.type);
+      });
+
+      openModal('modal-activity');
+    }
+
+    function saveActivity() {
+      const name = $('act-name').value.trim();
+      const time = $('act-time').value;
+      if (!name || !time) {
+        showToast('Nombre y hora son obligatorios', 'info');
+        return;
+      }
+
+      const day = state.itinerario.days[state.currentDay];
+      const costVal = parseFloat($('act-cost').value);
+      const cost = (!isNaN(costVal) && costVal > 0) ? parseFloat(costVal.toFixed(2)) : 0;
+
+      // ensure expenses array
+      if (!state.itinerario.expenses) state.itinerario.expenses = [];
+
+      if (state.editingActivityId) {
+        const act = day.activities.find(a => a.id === state.editingActivityId);
+        if (act) {
+          act.name = name;
+          act.location = $('act-location').value.trim();
+          act.time = time;
+          act.duration = $('act-duration').value;
+          act.cost = cost;
+          act.notes = $('act-notes').value.trim();
+          act.type = state.selectedType;
+
+          // update linked expense if exists
+          if (act.expenseId) {
+            const expIdx = state.itinerario.expenses.findIndex(e => e.id === act.expenseId);
+            if (expIdx !== -1) {
+              state.itinerario.expenses[expIdx].name = act.name;
+              state.itinerario.expenses[expIdx].amount = cost;
+              state.itinerario.expenses[expIdx].date = day.date;
+            }
+          } else if (cost > 0) {
+            // create expense linked to activity
+            const newExp = {
+              id: 'exp_' + Date.now().toString(16),
+              name: name,
+              amount: cost,
+              category: state.selectedType || '🎟️',
+              date: day.date,
+            };
+            state.itinerario.expenses.push(newExp);
+            act.expenseId = newExp.id;
+          }
+        }
+        showToast('Actividad actualizada', 'success');
+      } else {
+        const newAct = {
+          id: 'act_' + Date.now().toString(16),
+          name,
+          location: $('act-location').value.trim(),
+          time,
+          duration: $('act-duration').value,
+          cost,
+          notes: $('act-notes').value.trim(),
+          type: state.selectedType,
+          expenseId: null,
+        };
+
+        if (cost > 0) {
+          const newExp = {
+            id: 'exp_' + Date.now().toString(16),
+            name: name,
+            amount: cost,
+            category: state.selectedType || '🎟️',
+            date: day.date,
+          };
+          state.itinerario.expenses.push(newExp);
+          newAct.expenseId = newExp.id;
+        }
+
+        day.activities.push(newAct);
+        showToast('Actividad añadida', 'success');
+      }
+
+      guardarItinerario();
+      closeModal('modal-activity');
+      renderAll();
+    }
+
+    function deleteActivity(id) {
+      const day = state.itinerario.days[state.currentDay];
+      const act = day.activities.find(a => a.id === id);
+      if (!act) return;
+
+      // remove linked expense if any
+      if (act.expenseId && state.itinerario.expenses) {
+        state.itinerario.expenses = state.itinerario.expenses.filter(e => e.id !== act.expenseId);
+      }
+
+      day.activities = day.activities.filter(a => a.id !== id);
+      if (state.selectedActivityId === id) {
+        state.selectedActivityId = null;
+        $('empty-detail').style.display = 'flex';
+        $('activity-content').style.display = 'none';
+        $('map-popup').classList.remove('visible');
+      }
+      guardarItinerario();
+      renderAll();
+      showToast('Actividad eliminada', 'info');
+    }
+
+    function clearActivityForm() {
+      ['act-name', 'act-location', 'act-time', 'act-cost', 'act-notes'].forEach(id => $(id).value = '');
+      $('act-duration').value = '1h30m';
+      state.selectedType = 'sightseeing';
+      document.querySelectorAll('.type-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.type === 'sightseeing');
+      });
+    }
+
+
+    // =====================================================
+    // Budget Tracker
+    // =====================================================
+    function renderBudget() {
+      const it = state.itinerario;
+      const total = it.budget || 1500;
+      const spent = (it.expenses || []).reduce((s, e) => s + (parseFloat(e.amount) || 0), 0);
+      const pct = Math.min(100, (spent / total) * 100);
+
+      $('budget-spent').textContent = `€${spent.toFixed(2)}`;
+      $('budget-bar').style.width = pct + '%';
+      $('budget-spent-label').textContent = `Gastado: €${spent.toFixed(2)}`;
+      $('budget-total-label').textContent = `Presupuesto: €${total}`;
+
+      const expList = it.expenses || [];
+      $('expense-list').innerHTML = expList.slice(-5).reverse().map(exp => `
+        <div class="expense-item">
+          <div class="expense-icon" style="background:var(--surface-hover)">${exp.category}</div>
+          <div class="expense-info">
+            <div class="expense-name">${sanitize(exp.name)}</div>
+            <div class="expense-date">${exp.date || '—'}</div>
+          </div>
+          <div class="expense-amount">€${parseFloat(exp.amount).toFixed(2)}</div>
+        </div>
+      `).join('');
+    }
+
+    // saveExpense removed: expenses are created/updated when saving activities
+
+    // =====================================================
+    // Checklist
+    // =====================================================
+    function renderChecklist() {
+      const items = state.itinerario.checklist || [];
+      const done = items.filter(i => i.checked).length;
+
+      $('checklist-progress').textContent = `${done}/${items.length}`;
+      $('checklist').innerHTML = items.map((item, idx) => `
+        <div class="checklist-item ${item.checked ? 'checked' : ''}" data-idx="${idx}">
+          <div class="checklist-checkbox">
+            <svg fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <span class="checklist-label">${sanitize(item.label)}</span>
+        </div>
+      `).join('');
+
+      $('checklist').querySelectorAll('.checklist-item').forEach(el => {
+        el.addEventListener('click', () => {
+          const idx = parseInt(el.dataset.idx);
+          state.itinerario.checklist[idx].checked = !state.itinerario.checklist[idx].checked;
+          guardarItinerario();
+          renderChecklist();
+        });
+      });
+    }
+
+    // =====================================================
+    // Clima (simulado)
+    // =====================================================
+    function renderWeather() {
+      $('weather-location').textContent = state.itinerario.destino;
+      $('weather-temp').textContent = `${WEATHER_DATA.temp}°C`;
+      $('weather-desc').textContent = WEATHER_DATA.desc;
+      $('weather-icon').textContent = WEATHER_DATA.icon;
+
+      $('weather-forecast').innerHTML = WEATHER_DATA.forecast.map(d => `
+        <div class="weather-day">
+          <span class="weather-day-name">${d.day}</span>
+          <span class="weather-day-icon">${d.icon}</span>
+          <span class="weather-day-temp">${d.temp}°</span>
+        </div>
+      `).join('');
+    }
+
+    // =====================================================
+    // Modales
+    // =====================================================
+    function openModal(id) {
+      $(id).classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal(id) {
+      $(id).classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    function initModals() {
+      // Actividad
+      $('btn-add-activity').addEventListener('click', openAddActivity);
+      $('modal-activity-close').addEventListener('click', () => closeModal('modal-activity'));
+      $('modal-activity-cancel').addEventListener('click', () => closeModal('modal-activity'));
+      $('modal-activity-save').addEventListener('click', saveActivity);
+
+      $('btn-editar-itinerario').addEventListener('click', openEditItinerario);
+      // Editar itinerario modal
+      $('modal-itinerario-close').addEventListener('click', () => closeModal('modal-itinerario'));
+      $('modal-itinerario-cancel').addEventListener('click', () => closeModal('modal-itinerario'));
+      $('modal-itinerario-save').addEventListener('click', saveItinerario);
+      // Eliminar itinerario
+      const delBtn = $('btn-delete-itinerario');
+      if (delBtn) delBtn.addEventListener('click', deleteItinerario);
+
+      // Tipo selector
+      document.querySelectorAll('.type-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          state.selectedType = btn.dataset.type;
+        });
+      });
+
+      // Cerrar con backdrop
+      ['modal-activity', 'modal-itinerario'].forEach(id => {
+        $(id).addEventListener('click', e => {
+          if (e.target === e.currentTarget) closeModal(id);
+        });
+      });
+
+      // ESC
+      document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') ['modal-activity', 'modal-itinerario'].forEach(closeModal);
+      });
+
+      // Cerrar popup mapa al hacer click fuera
+      document.addEventListener('click', e => {
+        if (!e.target.closest('.map-pin') && !e.target.closest('.map-popup')) {
+          $('map-popup').classList.remove('visible');
+        }
+      });
+    }
+
+    // =====================================================
+    // Menú móvil
+    // =====================================================
+    function initMobileMenu() {
+      const toggle = $('mobile-menu-toggle');
+      const nav = $('main-nav');
+      const overlay = $('nav-overlay');
+      if (!toggle) return;
+
+      const open = () => {
+        nav.classList.add('open');
+        overlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+      };
+      const close = () => {
+        nav.classList.remove('open');
+        overlay.classList.remove('active');
+        document.body.style.overflow = '';
+      };
+
+      toggle.addEventListener('click', () => nav.classList.contains('open') ? close() : open());
+      overlay.addEventListener('click', close);
+      nav.querySelectorAll('a').forEach(a => a.addEventListener('click', close));
+      document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') close();
+      });
+    }
+
+    // =====================================================
+    // Toast
+    // =====================================================
+    function showToast(message, type = 'success') {
+      const icons = {
+        success: `<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`,
+        info: `<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`,
+      };
+
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.innerHTML = `
+        <div class="toast-icon">${icons[type] || icons.info}</div>
+        <span class="toast-message">${sanitize(message)}</span>
+      `;
+
+      $('toast-container').appendChild(toast);
+      setTimeout(() => {
+        toast.classList.add('removing');
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+
+    // =====================================================
+    // Render All
+    // =====================================================
+    function renderAll() {
+      renderHeader();
+      renderDayTabs();
+      renderTimeline();
+      renderMap();
+      renderBudget();
+      renderChecklist();
+      renderWeather();
+    }
+
+    // =====================================================
+    // Init
+    // =====================================================
+    function init() {
+      cargarItinerario();
+      initMobileMenu();
+      initModals();
+      renderAll();
+      console.log('✅ Detalle de itinerario iniciado');
+    }
+
+    init();
+  </script>
+
+</body>
+
+</html>
