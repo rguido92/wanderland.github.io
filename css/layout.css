@@ -20,7 +20,8 @@ body {
   border-bottom: 1px solid var(--border);
   position: sticky;
   top: 0;
-  z-index: auto; /* remove fixed stacking context so mobile nav can layer above overlay */
+  z-index: 100;
+  /* remove fixed stacking context so mobile nav can layer above overlay */
   height: var(--header-height);
 }
 
@@ -41,7 +42,8 @@ body {
   align-items: center;
   gap: var(--space-2);
   color: var(--text-primary);
-  flex-shrink: 0; /*propiedad de Flexbox que define cuánto se encogerá un elemento flexible (flex item) para evitar desbordar su contenedor cuando no hay suficiente espacio*/
+  flex-shrink: 0;
+  /*propiedad de Flexbox que define cuánto se encogerá un elemento flexible (flex item) para evitar desbordar su contenedor cuando no hay suficiente espacio*/
 }
 
 .logo svg {
@@ -70,7 +72,8 @@ body {
   padding: var(--space-8) var(--space-6);
   box-shadow: var(--shadow-2xl);
   transition: left var(--transition-base);
-  z-index: 9999; /* ensure nav always stacks above overlays */
+  z-index: 99;
+  /* ensure nav always stacks above overlays */
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -94,7 +97,7 @@ body {
   opacity: 0;
   pointer-events: none;
   transition: opacity var(--transition-base);
-  z-index: var(--z-modal);
+  z-index: 98;
 }
 
 .nav-overlay.active {
@@ -161,19 +164,20 @@ body {
   .logo h2 {
     font-size: var(--text-xl);
   }
-  
+
   .header-content {
     gap: var(--space-6);
   }
-  
+
   /* Ocultar toggle en tablet+ */
   .mobile-menu-toggle {
     display: none;
   }
-  
+
   /* Menú horizontal en tablet+ */
   .main-nav {
     position: static;
+    /* ← CAMBIO AQUÍ: de fixed a static */
     width: auto;
     max-width: none;
     height: auto;
@@ -183,12 +187,14 @@ body {
     flex-direction: row;
     gap: var(--space-10);
     overflow-y: visible;
+    z-index: auto;
+    /* ← AÑADIR: resetear z-index en desktop */
   }
-  
+
   .main-nav a {
     padding: var(--space-3) var(--space-5);
   }
-  
+
   /* Overlay no necesario en desktop */
   .nav-overlay {
     display: none;
@@ -202,7 +208,7 @@ body {
   .main-nav {
     gap: var(--space-12);
   }
-  
+
   .header-actions {
     gap: var(--space-6);
   }
@@ -262,16 +268,16 @@ body {
     min-height: 500px;
     padding: var(--space-20) var(--space-4);
   }
-  
+
   .hero-content {
     max-width: 85%;
   }
-  
+
   .hero h1 {
     font-size: var(--text-4xl);
     margin-bottom: var(--space-6);
   }
-  
+
   .hero p {
     font-size: var(--text-lg);
     margin-bottom: var(--space-14);
@@ -284,11 +290,11 @@ body {
     min-height: 600px;
     padding: var(--space-24) var(--space-4);
   }
-  
+
   .hero h1 {
     font-size: var(--text-5xl);
   }
-  
+
   .hero-image {
     opacity: 0.4;
   }
@@ -299,7 +305,7 @@ body {
   .hero {
     min-height: 650px;
   }
-  
+
   .hero h1 {
     font-size: var(--text-6xl);
   }
@@ -351,11 +357,11 @@ body {
   .features {
     padding: var(--space-16) var(--space-4);
   }
-  
+
   .section-header {
     margin-bottom: var(--space-10);
   }
-  
+
   .features-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: var(--space-6);
@@ -367,20 +373,20 @@ body {
   .features {
     padding: var(--space-20) var(--space-4);
   }
-  
+
   .section-header h2 {
     font-size: var(--text-4xl);
   }
-  
+
   .section-header p {
     font-size: var(--text-lg);
     max-width: var(--container-md);
   }
-  
+
   .section-header {
     margin-bottom: var(--space-12);
   }
-  
+
   .features-grid {
     grid-template-columns: repeat(3, 1fr);
   }
@@ -462,11 +468,11 @@ body {
   .footer-content {
     grid-template-columns: 1fr 1fr;
   }
-  
+
   .footer-info {
     grid-column: 1 / -1;
   }
-  
+
   .footer-nav {
     grid-column: 1 / -1;
     grid-template-columns: repeat(3, 1fr);
@@ -479,31 +485,31 @@ body {
   .main-footer {
     padding: var(--space-12) var(--space-4) var(--space-6);
   }
-  
+
   .footer-content {
     grid-template-columns: 2fr 1fr 1fr 1fr;
     gap: var(--space-10);
     margin-bottom: var(--space-8);
   }
-  
+
   .footer-info {
     grid-column: auto;
   }
-  
+
   .footer-nav {
     grid-column: 2 / -1;
     grid-template-columns: repeat(3, 1fr);
     gap: var(--space-8);
   }
-  
+
   .footer-info p {
     max-width: 300px;
   }
-  
+
   .footer-bottom {
     padding-top: var(--space-6);
   }
-  
+
   .footer-bottom small {
     font-size: var(--text-sm);
   }

@@ -412,6 +412,13 @@ function handleOnline() {
   // TODO: Sincronizar datos pendientes
 }
 
+/**
+ * Maneja cuando el usuario vuelve a estar online
+ */
+function handleOffline() {
+  console.log('⚠️ Sin conexión');
+  // TODO: Sincronizar datos pendientes
+}
 // ==========================================================================
 // Inicialización principal
 // ==========================================================================
